@@ -1,0 +1,97 @@
+#
+# perldoc perltidy for all of the options and configuration
+#
+
+# non-critical warnings should be investigated and fixed
+--warning-output
+
+# we're not using tabs (because not everybody uses tabs, which means we end
+# up with a mix of tabs and not tabs. so: no tabs).
+--indent-columns=4
+--continuation-indentation=4
+--extended-continuation-indentation
+
+# the median line length of those lines longer than 80 char is 95 as shown by:
+# find lib/ -name '*.pm' | xargs awk '{ if ( length > 80 ) { print length } }' | datamash median 1 # 95
+--maximum-line-length=100
+
+# don't lineup things with parentheses as that ends up pushing things
+# towards the end of the line, which can then wrap, which is less tidy
+# we also need to disable this to avoid conflicts with --tabs
+--no-extended-line-up-parentheses
+--closing-token-indentation=0
+
+# semicolons are mandatory: a whole class of bugs and gotchas are removed
+# if you always use semicolons as "optional semicolons" is a euphemism for
+# "future bugs"
+--add-semicolons
+
+# cuddled else seems to be favoured (10:1):
+--cuddled-else
+
+# don't ever "outdent" things as it just looks messy and *not* tidy
+--nooutdent-long-quotes
+--nooutdent-labels
+--nooutdent-keywords
+
+# nobody seems to do opening braces for subs on new lines, so don't do it
+--noopening-brace-on-new-line
+
+# break after opening as this means less churn in the diffs and always have
+# optional commas as this also means less churn in the diffs
+--vertical-tightness=0
+--vertical-tightness-closing=0
+--block-brace-vertical-tightness=0
+--comma-arrow-breakpoints=1
+
+# all multi-line lists get trailing commas, and any trailing commas on single
+# line lists are removed (this explains the apparent conflict: add and delete)
+--want-trailing-commas=m
+--add-trailing-commas
+--delete-trailing-commas
+
+# comment handling likewise
+--minimum-space-to-comment=4
+--hanging-side-comments
+--nooutdent-long-comments
+--indent-block-comments
+--indent-spaced-block-comments
+
+# a little bit of whitespace goes a long way
+--blanks-before-comments
+--blanks-before-subs
+--blanks-before-blocks
+--break-at-old-logical-breakpoints
+--break-at-old-keyword-breakpoints
+--break-at-old-ternary-breakpoints
+--noswallow-optional-blank-lines
+--maximum-consecutive-blank-lines=4
+--long-block-line-count=0
+--nospace-for-semicolon
+--space-after-keyword
+--notrim-qw
+
+# if we've broken a line up onto new lines then retain that as it was probably
+# done for legibility - perltidy would otherwise concatenate it all back again
+--nodelete-old-newlines
+
+# the most tightness as this is what most people use (?)
+--paren-tightness=2
+--square-bracket-tightness=2
+--brace-tightness=2
+--block-brace-tightness=2
+
+--one-line-block-semicolons=0
+--stack-closing-tokens
+--stack-opening-tokens
+--cuddled-block-list="map grep sort"
+--cuddled-blocks
+--cuddled-paren-brace
+--opening-token-right
+--break-before-hash-brace=1
+--all-containers-tightness=0
+
+# when there is an outer container around a single inner container, weld them
+# together to reduce indentation
+--weld-nested-containers
+--delete-weld-interfering-commas
