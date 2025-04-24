@@ -35,12 +35,14 @@ use feature qw/ signatures /;
 use Moose::Util::TypeConstraints;
 no warnings qw/ experimental::signatures /;
 
-use DateTime::Format::DateParse; ## no critic
+use DateTime::Format::DateParse;    ## no critic
 use Mojo::Util qw/ decamelize /;
 use Exporter::Easy (
-    OK => [ qw/
-        add_max_string_attribute
-    / ],
+    OK => [
+        qw/
+            add_max_string_attribute
+            /
+    ]
 );
 
 =head1 TYPES
@@ -56,19 +58,34 @@ A DateTime object, this will be coerced from the string DDMMYY
 class_type 'DateTime';
 
 subtype 'NAB::Type::Date'
-      => as 'DateTime';
+    => as 'DateTime';
 
 coerce 'NAB::Type::Date'
     => from 'Str'
     => via {
-        my $date_str = $_;
+    my $date_str = $_;
 
-        return $date_str if ref( $date_str );
+    return $date_str if ref( $date_str );
 
-        my ( $dd,$mm,$yy ) = ( $date_str =~ /^(\d{2})(\d{2})(\d{2})$/ );
-        my $yyyy = "20$yy"; # gyragh! Y2K never happened?
-        return DateTime::Format::DateParse->parse_datetime( "$yyyy-$mm-$dd" );
-};
+    my ( $dd, $mm, $yy ) = ( $date_str =~ /^(\d{2})(\d{2})(\d{2})$/ );
+    my $yyyy = "20$yy";    # gyragh! Y2K never happened?
+    return DateTime::Format::DateParse->parse_datetime( "$yyyy-$mm-$dd" );
+    };
+
+subtype 'NAB::Type::StatementDate'
+    => as 'DateTime';
+
+coerce 'NAB::Type::StatementDate'
+    => from 'Str'
+    => via {
+    my $date_str = $_;
+
+    return $date_str if ref( $date_str );
+
+    my ( $yy, $mm, $dd ) = ( $date_str =~ /^(\d{2})(\d{2})(\d{2})$/ );
+    my $yyyy = "20$yy";    # gyragh! Y2K never happened?
+    return DateTime::Format::DateParse->parse_datetime( "$yyyy-$mm-$dd" );
+    };
 
 =item NAB::Type::PositiveInt
 
@@ -77,9 +94,9 @@ An Int greater than zero
 =cut
 
 subtype 'NAB::Type::PositiveInt'
-	=> as 'Int'
-	=> where { $_ > 0 }
-	=> message { "The number provided, $_, was not positive" }
+    => as 'Int'
+    => where { $_ > 0 }
+=> message { "The number provided, $_, was not positive" }
 ;
 
 =item NAB::Type::PositiveIntOrZero
@@ -89,9 +106,9 @@ An Int greater than or equal to zero
 =cut
 
 subtype 'NAB::Type::PositiveIntOrZero'
-	=> as 'Int'
-	=> where { $_ >= 0 }
-	=> message { "The number provided, $_, was not positive or zero" }
+    => as 'Int'
+    => where { $_ >= 0 }
+=> message { "The number provided, $_, was not positive or zero" }
 ;
 
 =item NAB::Type::BSBNumber
@@ -103,7 +120,7 @@ A Str of the form C</^\d{3}-\d{3}$/>
 subtype 'NAB::Type::BSBNumber'
     => as 'Str',
     => where { $_ =~ /^\d{3}-\d{3}$/ }
-	=> message { "The BSB provided, $_, does not match \\d{3}-\\d{3}" }
+=> message { "The BSB provided, $_, does not match \\d{3}-\\d{3}" }
 ;
 
 =item NAB::Type::AccountNumber
@@ -126,11 +143,11 @@ And:
 subtype 'NAB::Type::AccountNumber'
     => as 'Str',
     => where {
-        length( $_ ) < 10
+    length( $_ ) < 10
         && $_ =~ /^[A-z0-9\ \-]+$/
         && $_ !~ /^(\s|0)+$/
-    }
-	=> message { "The account number provided, $_, is not valid" }
+}
+=> message { "The account number provided, $_, is not valid" }
 ;
 
 =item NAB::Type::Indicator
@@ -142,7 +159,7 @@ A Str of the form C</^[\ NTWXY]$/>
 subtype 'NAB::Type::Indicator'
     => as 'Maybe[Str]',
     => where { $_ =~ /^[ NTWXY]$/ }
-	=> message { "The indicator provided, $_, does not match [ NTWXY]" }
+=> message { "The indicator provided, $_, does not match [ NTWXY]" }
 ;
 
 =back
@@ -203,35 +220,41 @@ sub add_max_string_attribute (
     $name_spec,
     %attr_spec,
 ) {
-    my ( $subtype_name,$max_length,$trim )
+    my ( $subtype_name, $max_length, $trim )
         = ( $name_spec =~ /^(\w+)\[(\d+)(:[A-z-]+)?\]$/ );
     my $attr_name = decamelize( $subtype_name );
 
     subtype "NAB::Type::$subtype_name"
         => as 'Maybe[Str]'
         => where {
-            ! defined( $_ )
+        !defined( $_ )
             or length( $_ ) <= $max_length
-        }
-        => message {
-            "The string provided for $attr_name"
-           . " was outside 1..$max_length chars"
-        }
+    }
+    => message {
+        "The string provided for $attr_name"
+            . " was outside 1..$max_length chars"
+    }
     ;
 
-    $package->meta->add_attribute( $attr_name,
-        isa => "NAB::Type::$subtype_name",
+    $package->meta->add_attribute(
+        $attr_name,
+        isa       => "NAB::Type::$subtype_name",
         predicate => "_has_$attr_name",
 
         # trim via trigger if required
-        ( $trim ? ( trigger => sub {
-            my ( $self,$value,$old_value ) = @_;
+        (
+            $trim
+            ? (
+                trigger => sub {
+                    my ( $self, $value, $old_value ) = @_;
 
-            $value =~ s/^0+// if $trim eq ':trim_leading_zeros';
+                    $value =~ s/^0+// if $trim eq ':trim_leading_zeros';
 
-            $self->{$attr_name} = $value;
+                    $self->{ $attr_name } = $value;
 
-        } ) : () ),
+                } )
+            : ()
+        ),
 
         %attr_spec,
     );
