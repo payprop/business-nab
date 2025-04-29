@@ -72,6 +72,12 @@ coerce 'NAB::Type::Date'
     return DateTime::Format::DateParse->parse_datetime( "$yyyy-$mm-$dd" );
     };
 
+=item NAB::Type::StatementDate
+
+A DateTime object, this will be coerced from the string YYMMDD
+
+=cut
+
 subtype 'NAB::Type::StatementDate'
     => as 'DateTime';
 
@@ -82,8 +88,8 @@ coerce 'NAB::Type::StatementDate'
 
     return $date_str if ref( $date_str );
 
-    my ( $yy, $mm, $dd ) = ( $date_str =~ /^(\d{2})(\d{2})(\d{2})$/ );
-    my $yyyy = "20$yy";    # gyragh! Y2K never happened?
+    my ( $yy, $mm, $dd ) = ( $date_str =~ /^(\d{2,4})(\d{2})(\d{2})$/ );
+    my $yyyy = length( $yy ) == 4 ? $yy : "20$yy";    # Y2K never happened?
     return DateTime::Format::DateParse->parse_datetime( "$yyyy-$mm-$dd" );
     };
 
@@ -113,14 +119,14 @@ subtype 'NAB::Type::PositiveIntOrZero'
 
 =item NAB::Type::BSBNumber
 
-A Str of the form C</^\d{3}-\d{3}$/>
+A Str of the form C</^\d{3}-?\d{3}$/>
 
 =cut
 
 subtype 'NAB::Type::BSBNumber'
     => as 'Str',
-    => where { $_ =~ /^\d{3}-\d{3}$/ }
-=> message { "The BSB provided, $_, does not match \\d{3}-\\d{3}" }
+    => where { $_ =~ /^\d{3}-?\d{3}$/ }
+=> message { "The BSB provided, $_, does not match \\d{3}-?\\d{3}" }
 ;
 
 =item NAB::Type::AccountNumber

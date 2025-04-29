@@ -48,27 +48,27 @@ use strict;
 use warnings;
 use feature qw/ signatures /;
 use autodie qw/ :all /;
-use Carp qw/ croak /;
+use Carp    qw/ croak /;
 
 use Moose;
+extends 'Business::NAB::FileContainer';
+
 use Moose::Util::TypeConstraints;
 no warnings qw/ experimental::signatures /;
 
-use Module::Load;
-use Mojo::Util qw/ decamelize /;
 use List::Util qw/ sum /;
 
 # we have long namespaces and use them multiple times so have
 # normalised them out into the $parent and @subclasses below
 my $parent = 'Business::NAB::Australian::DirectEntry::Payments';
 
-my @subclasses = ( qw/
-    DescriptiveRecord
-    DetailRecord
-    TotalRecord
-/ );
-
-my $i = 1;
+my @subclasses = (
+    qw/
+        DescriptiveRecord
+        DetailRecord
+        TotalRecord
+        /
+);
 
 =head1 ATTRIBUTES
 
@@ -97,47 +97,7 @@ to the arrays:
 
 =cut
 
-foreach my $record_type ( @subclasses ) {
-
-    load $parent . "::$record_type";
-
-    my $attr = decamelize( $record_type );
-    my $class = "${parent}::$record_type";
-
-    subtype $record_type
-        => as "ArrayRef[$class]";
-
-    coerce $record_type
-        => from "ArrayRef[HashRef|$class]"
-        => via {
-            # when a new thing is pushed onto the array we need to coerce
-            # it from a HashRef to the instance of the class, but if it's
-            # already an instance of the class then pass it straight through
-            my @objects = map {
-                ref $_ eq $class
-                    ? $_
-                    : $class->new( $_ )
-            } @{$_};
-
-            [ @objects ];
-        }
-        => from "ArrayRef[Any]"
-        => via {
-            [ $class->new( $_->@* ) ]
-        }
-    ;
-
-    has $attr => (
-        traits  => [ 'Array' ],
-        is      => 'rw',
-        isa     => $record_type,
-        coerce  => 1,
-        default => sub { [] },
-        handles => {
-            "add_${attr}" => 'push',
-        },
-    );
-}
+__PACKAGE__->load_attributes( $parent, @subclasses );
 
 =head1 METHODS
 
@@ -151,9 +111,7 @@ the result of parsing the passed file
 
 =cut
 
-sub new_from_file ( $class,$file ) {
-
-    open( my $fh,'<',$file );
+sub new_from_file ( $class, $file ) {
 
     my %sub_class_map = (
         0 => 'DescriptiveRecord',
@@ -163,25 +121,12 @@ sub new_from_file ( $class,$file ) {
 
     my $self = $class->new;
 
-    while ( my $line = <$fh> ) {
-
-        my $type      = substr( $line,0,1 );
-        my $sub_class = $sub_class_map{ $type };
-        my $attr      = decamelize( $sub_class );
-        my $push      = "add_${attr}";
-
-        $sub_class || carp( "Unrecognised record type ($type) at line $." );
-        $sub_class = "${parent}::${sub_class}";
-
-        my $Instance = $sub_class->new_from_record( $line );
-
-        $self->$push( $Instance );
-    }
-
-    return $self;
+    return $self->SUPER::new_from_file(
+        $parent, $file, %sub_class_map
+    );
 }
 
-=head2 to_record
+=head2 to_file
 
 Writes the file content to the passed file path:
 
@@ -197,19 +142,19 @@ sub to_file (
     $self,
     $file,
     $bsb_number = undef,
-    $sep = "\r\n"
+    $sep = "\r\n",
 ) {
 
-    open( my $fh,'>',$file );
+    open( my $fh, '>', $file );
 
-    print $fh $self->descriptive_record->[0]->to_record . $sep;
+    print $fh $self->descriptive_record->[ 0 ]->to_record . $sep;
     print $fh $_->to_record . $sep foreach $self->detail_record->@*;
 
-    if ( my $TotalRecord = $self->total_record->[0] ) {
+    if ( my $TotalRecord = $self->total_record->[ 0 ] ) {
         print $fh $TotalRecord->to_record . $sep;
     } else {
         croak( "BSB number is required if total_record is not set" )
-            if ! $bsb_number;
+            if !$bsb_number;
 
         my $record_count = scalar( $self->detail_record->@* );
 
@@ -222,11 +167,11 @@ sub to_file (
             grep { $_->is_debit } $self->detail_record->@*;
 
         my $TotalRecord = Business::NAB::Australian::DirectEntry::Payments::TotalRecord->new(
-            bsb_number => $bsb_number,
-            net_total_amount => $net_total,
+            bsb_number          => $bsb_number,
+            net_total_amount    => $net_total,
             credit_total_amount => $credit_total,
-            debit_total_amount => $debit_total,
-            record_count => $record_count,
+            debit_total_amount  => $debit_total,
+            record_count        => $record_count,
         );
 
         print $fh $TotalRecord->to_record . $sep;

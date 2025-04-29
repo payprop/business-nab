@@ -39,7 +39,7 @@ use Carp qw/ croak /;
 use Moose;
 use Business::NAB::Types qw/
     add_max_string_attribute
-/;
+    /;
 
 no warnings qw/ experimental::signatures /;
 
@@ -48,6 +48,14 @@ no warnings qw/ experimental::signatures /;
 =over
 
 =item bsb_number (NAB::Type::BSBNumber)
+
+=item net_total_amount (NAB::Type::PositiveIntOrZero)
+
+=item credit_total_amount (NAB::Type::PositiveIntOrZero)
+
+=item debit_total_amount (NAB::Type::PositiveIntOrZero)
+
+=item record_count (NAB::Type::PositiveIntOrZero)
 
 =back
 
@@ -59,19 +67,21 @@ has [ qw/ bsb_number / ] => (
     required => 1,
 );
 
-foreach my $attr ( qw/
+foreach my $attr (
+    qw/
     net_total_amount
     credit_total_amount
     debit_total_amount
     record_count
-/ ) {
+    /
+) {
     has $attr => (
         is       => 'ro',
         isa      => 'NAB::Type::PositiveIntOrZero',
         required => 1,
         trigger  => sub {
-            my ( $self,$value,$old_value ) = @_;
-            $self->{$attr} = int( $value );
+            my ( $self, $value, $old_value ) = @_;
+            $self->{ $attr } = int( $value );
         },
     );
 }
@@ -92,7 +102,7 @@ the result of parsing the passed line:
 
 =cut
 
-sub new_from_record ( $class,$line ) {
+sub new_from_record ( $class, $line ) {
 
     # undef being "this space intentionally left blank"
     my (
@@ -104,18 +114,18 @@ sub new_from_record ( $class,$line ) {
         $debit_total_amount,
         undef,
         $record_count,
-    ) = unpack( $class->_pack_template(),$line );
+    ) = unpack( $class->_pack_template(), $line );
 
     if ( $record_type ne '7' ) {
         croak( "unsupported record type ($record_type)" );
     }
 
     return $class->new(
-        bsb_number => $bsb_number,
-        net_total_amount => $net_total_amount,
+        bsb_number          => $bsb_number,
+        net_total_amount    => $net_total_amount,
         credit_total_amount => $credit_total_amount,
-        debit_total_amount => $debit_total_amount,
-        record_count => $record_count,
+        debit_total_amount  => $debit_total_amount,
+        record_count        => $record_count,
     );
 }
 
@@ -135,11 +145,11 @@ sub to_record ( $self ) {
         "7",
         $self->bsb_number,
         "",
-        sprintf( "%010d",$self->net_total_amount ),
-        sprintf( "%010d",$self->credit_total_amount ),
-        sprintf( "%010d",$self->debit_total_amount ),
+        sprintf( "%010d", $self->net_total_amount ),
+        sprintf( "%010d", $self->credit_total_amount ),
+        sprintf( "%010d", $self->debit_total_amount ),
         "",
-        sprintf( "%06d",$self->record_count ),
+        sprintf( "%06d", $self->record_count ),
         "",
     );
 
