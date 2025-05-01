@@ -1,5 +1,38 @@
 package Business::NAB::BPAY::Payments;
 
+=head1 NAME
+
+Business::NAB::BPAY::Payments
+
+=head1 SYNOPSIS
+
+    use Business::NAB::BPAY::Payments;
+
+    my $Payments = Business::NAB::BPAY::Payments->new_from_file(
+        "/path/to/bpay/payments/batch/file.bpb",
+    );
+
+    # parse
+    my $Header = $Payments->header_record->[0];
+
+    foreach my $Payment ( $Payments->detail_record->@* ) {
+        ...
+    }
+
+    my $Trailer = $Payments->trailer_record->[0];
+
+    # create
+    $Payments->to_file(
+        "/path/to/bpay/payments/batch/file_output.bpb",
+        $separator, # defaults to "\r\n"
+    );
+
+=head1 DESCRIPTION
+
+Class for parsing / creating a NAB BPAY batch payments file
+
+=cut;
+
 use strict;
 use warnings;
 use feature qw/ signatures /;
@@ -13,6 +46,7 @@ use Moose::Util::TypeConstraints;
 no warnings qw/ experimental::signatures /;
 
 use List::Util qw/ sum /;
+use Business::NAB::BPAY::Payments::TrailerRecord;
 
 # we have long namespaces and use them multiple times so have
 # normalised them out into the $parent and @subclasses below
@@ -68,7 +102,11 @@ the result of parsing the passed file
 
 =cut
 
-sub new_from_file ( $class, $file ) {
+sub new_from_file (
+    $class,
+    $file,
+    $class_parent = $parent,    # undocumented as called by subclasses
+) {
 
     my %sub_class_map = (
         1 => 'HeaderRecord',
@@ -76,10 +114,10 @@ sub new_from_file ( $class, $file ) {
         9 => 'TrailerRecord',
     );
 
-    my $self = $class->new;
+    my $self = ref( $class ) ? $class : $class->new;
 
     return $self->SUPER::new_from_file(
-        $parent, $file, %sub_class_map
+        $class_parent, $file, %sub_class_map
     );
 }
 
@@ -124,6 +162,8 @@ sub to_file (
 }
 
 =head1 SEE ALSO
+
+L<Business::NAB::Types>
 
 L<Business::NAB::BPAY::Payments::HeaderRecord>
 

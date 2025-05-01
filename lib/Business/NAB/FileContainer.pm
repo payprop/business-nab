@@ -1,5 +1,7 @@
 package Business::NAB::FileContainer;
 
+# undocument abstract class
+
 use strict;
 use warnings;
 use feature qw/ signatures /;
