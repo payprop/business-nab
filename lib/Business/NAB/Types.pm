@@ -67,9 +67,13 @@ coerce 'NAB::Type::Date'
 
     return $date_str if ref( $date_str );
 
-    my ( $dd, $mm, $yy ) = ( $date_str =~ /^(\d{2})(\d{2})(\d{2})$/ );
-    my $yyyy = "20$yy";    # gyragh! Y2K never happened?
-    return DateTime::Format::DateParse->parse_datetime( "$yyyy-$mm-$dd" );
+    if ( $date_str =~ /^(\d{2})(\d{2})(\d{2})$/ ) {
+        my ( $dd, $mm, $yy ) = ( $1, $2, $3 );
+        my $yyyy = "20$yy";    # gyragh! Y2K never happened?
+        $date_str = "$yyyy-$mm-$dd";
+    }
+
+    return DateTime::Format::DateParse->parse_datetime( $date_str );
     };
 
 =item NAB::Type::StatementDate
