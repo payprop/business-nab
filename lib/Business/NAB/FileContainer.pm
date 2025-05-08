@@ -86,10 +86,4 @@ sub new_from_file ( $self, $parent, $file, %sub_class_map ) {
     return $self;
 }
 
-=head1 SEE ALSO
-
-L<Business::NAB::Australian::DirectEntry::Payments>
-
-=cut
-
 1;
