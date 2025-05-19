@@ -64,14 +64,23 @@ sub load_attributes (
     }
 }
 
-sub new_from_file ( $self, $parent, $file, %sub_class_map ) {
+sub new_from_file (
+    $self,
+    $parent,
+    $file,
+    $sub_class_map,
+    $split_char = undef,
+) {
 
     open( my $fh, '<', $file );
 
     while ( my $line = <$fh> ) {
 
-        my $type      = substr( $line, 0, 1 );
-        my $sub_class = $sub_class_map{ $type };
+        my ( $type ) = $split_char
+            ? ( split( $split_char, $line ) )[ 0 ]
+            : substr( $line, 0, 1 );
+
+        my $sub_class = $sub_class_map->{ $type };
         my $attr      = decamelize( $sub_class );
         my $push      = "add_${attr}";
 

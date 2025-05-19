@@ -122,7 +122,7 @@ sub new_from_file ( $class, $file ) {
     my $self = $class->new;
 
     return $self->SUPER::new_from_file(
-        $parent, $file, %sub_class_map
+        $parent, $file, \%sub_class_map
     );
 }
 

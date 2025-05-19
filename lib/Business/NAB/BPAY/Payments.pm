@@ -117,7 +117,7 @@ sub new_from_file (
     my $self = ref( $class ) ? $class : $class->new;
 
     return $self->SUPER::new_from_file(
-        $class_parent, $file, %sub_class_map
+        $class_parent, $file, \%sub_class_map
     );
 }
 

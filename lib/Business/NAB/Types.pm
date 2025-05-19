@@ -51,7 +51,7 @@ use Exporter::Easy (
 
 =item NAB::Type::Date
 
-A DateTime object, this will be coerced from the string DDMMYY
+A DateTime object, this will be coerced from the string DDMMYY or DDMMYYYY
 
 =cut
 
@@ -67,9 +67,9 @@ coerce 'NAB::Type::Date'
 
     return $date_str if ref( $date_str );
 
-    if ( $date_str =~ /^(\d{2})(\d{2})(\d{2})$/ ) {
+    if ( $date_str =~ /^(\d{2})(\d{2})(\d{2,4})$/ ) {
         my ( $dd, $mm, $yy ) = ( $1, $2, $3 );
-        my $yyyy = "20$yy";    # gyragh! Y2K never happened?
+        my $yyyy = length( $yy ) == 4 ? $yy : "20$yy";    # Y2K never happened?
         $date_str = "$yyyy-$mm-$dd";
     }
 
@@ -232,13 +232,16 @@ sub add_max_string_attribute (
 ) {
     my ( $subtype_name, $max_length, $trim )
         = ( $name_spec =~ /^(\w+)\[(\d+)(:[A-z-]+)?\]$/ );
+
+    $subtype_name //= $name_spec;
     my $attr_name = decamelize( $subtype_name );
 
     subtype "NAB::Type::$subtype_name"
         => as 'Maybe[Str]'
         => where {
-        !defined( $_ )
-            or length( $_ ) <= $max_length
+        $max_length
+            ? ( !defined( $_ ) or length( $_ ) <= $max_length )
+            : 1;
     }
     => message {
         "The string provided for $attr_name"
