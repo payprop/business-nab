@@ -111,7 +111,9 @@ the result of parsing the passed file
 
 =cut
 
-sub new_from_file ( $class, $file ) {
+sub new_from_file (
+    $class, $file, $class_map = undef, $sub_parent = undef
+) {
 
     my %sub_class_map = (
         0 => 'DescriptiveRecord',
@@ -122,7 +124,9 @@ sub new_from_file ( $class, $file ) {
     my $self = $class->new;
 
     return $self->SUPER::new_from_file(
-        $parent, $file, \%sub_class_map
+        ( $sub_parent // $parent ),
+        $file,
+        ( $class_map // \%sub_class_map ),
     );
 }
 

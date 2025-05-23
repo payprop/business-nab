@@ -40,7 +40,7 @@ use Carp qw/ croak /;
 use Moose;
 use Business::NAB::Types qw/
     add_max_string_attribute
-/;
+    /;
 
 no warnings qw/ experimental::signatures /;
 
@@ -64,9 +64,11 @@ no warnings qw/ experimental::signatures /;
 
 =cut
 
-has [ qw/
-    process_date
-/ ] => (
+has [
+    qw/
+        process_date
+        /
+] => (
     is       => 'ro',
     isa      => 'NAB::Type::Date',
     required => 1,
@@ -91,6 +93,8 @@ sub _pack_template {
     return "A1 A17 A2 A3 A7 A26 A6 A12 A6 A40";
 }
 
+sub record_type { 0 }
+
 =head1 METHODS
 
 =head2 new_from_record
@@ -103,7 +107,7 @@ the result of parsing the passed line:
 
 =cut
 
-sub new_from_record ( $class,$line ) {
+sub new_from_record ( $class, $line ) {
 
     # undef being "this space intentionally left blank"
     my (
@@ -117,19 +121,19 @@ sub new_from_record ( $class,$line ) {
         $description,
         $date,
         undef,
-    ) = unpack( $class->_pack_template(),$line );
+    ) = unpack( $class->_pack_template(), $line );
 
-    if ( $record_type ne '0' ) {
+    if ( $record_type ne $class->record_type ) {
         croak( "unsupported record type ($record_type)" );
     }
 
     return $class->new(
         reel_sequence_number => $reel_sequence_number,
-        institution_name => $institution_name,
-        user_name => $user_name,
-        user_number => $user_number,
-        description => $description,
-        process_date => $date,
+        institution_name     => $institution_name,
+        user_name            => $user_name,
+        user_number          => $user_number,
+        description          => $description,
+        process_date         => $date,
     );
 }
 
@@ -146,13 +150,13 @@ sub to_record ( $self ) {
 
     my $record = pack(
         $self->_pack_template(),
-        "0",
+        $self->record_type,
         "",
-        sprintf( "%02d",$self->reel_sequence_number ),
+        sprintf( "%02d", $self->reel_sequence_number ),
         $self->institution_name,
         "",
         $self->user_name,
-        sprintf( "%06d",$self->user_number ),
+        sprintf( "%06d", $self->user_number ),
         $self->description,
         $self->process_date->strftime( '%d%m%y' ),
         "",

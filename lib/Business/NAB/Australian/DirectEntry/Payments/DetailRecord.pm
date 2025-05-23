@@ -44,7 +44,7 @@ use Carp qw/ croak /;
 use Moose;
 use Business::NAB::Types qw/
     add_max_string_attribute
-/;
+    /;
 
 no warnings qw/ experimental::signatures /;
 
@@ -106,7 +106,7 @@ has [ qw/ amount / ] => (
 has [ qw/ withholding_tax / ] => (
     is       => 'ro',
     isa      => 'NAB::Type::PositiveIntOrZero',
-    required => 1,
+    required => 0,
 );
 
 foreach my $str_attr (
@@ -118,13 +118,15 @@ foreach my $str_attr (
     __PACKAGE__->add_max_string_attribute(
         $str_attr,
         is       => 'ro',
-        required => 1,
+        required => $str_attr =~ /original/ ? 0 : 1,
     );
 }
 
 sub _pack_template {
     return "A1 A7 A9 A1 A2 A10 A32 A18 A7 A9 A16 A8";
 }
+
+sub record_type { 1 }
 
 =head1 METHODS
 
@@ -138,7 +140,7 @@ the result of parsing the passed line:
 
 =cut
 
-sub new_from_record ( $class,$line ) {
+sub new_from_record ( $class, $line ) {
 
     # undef being "this space intentionally left blank"
     my (
@@ -154,24 +156,55 @@ sub new_from_record ( $class,$line ) {
         $account_number_trace,
         $remitter_name,
         $withholding_tax,
-    ) = unpack( $class->_pack_template(),$line );
+        $rest,
+    ) = unpack( $class->_pack_template(), $line );
 
-    if ( $record_type ne '1' ) {
+    my ( $return_code, $orig_day, $orig_user_id );
+
+    if ( $record_type ne $class->record_type ) {
         croak( "unsupported record type ($record_type)" );
     }
 
+    if ( $class->record_type eq '1' ) {
+
+        # payments descriptive record
+    } elsif ( $class->record_type eq '2' ) {
+
+        # returns descriptive record
+        $return_code  = $indicator;
+        $orig_day     = $withholding_tax;
+        $orig_user_id = $rest;
+    }
+
     return $class->new(
-        bsb_number => $bsb_number,
-        account_number => $account_number,
-        indicator => $indicator || ' ',
-        transaction_code => $transaction_code,
-        amount => $amount,
-        title_of_account => $title_of_account,
-        lodgement_reference => $lodgement_reference,
-        bsb_number_trace => $bsb_number_trace,
+        bsb_number           => $bsb_number,
+        account_number       => $account_number,
+        transaction_code     => $transaction_code,
+        amount               => $amount,
+        title_of_account     => $title_of_account,
+        lodgement_reference  => $lodgement_reference,
+        bsb_number_trace     => $bsb_number_trace,
         account_number_trace => $account_number_trace,
-        remitter_name => $remitter_name,
-        withholding_tax => $withholding_tax,
+        remitter_name        => $remitter_name,
+
+        (
+            $class->record_type eq '1'
+            ? (
+                indicator       => $indicator || ' ',
+                withholding_tax => $withholding_tax,
+                )
+            : ()
+        ),
+
+        (
+            $class->record_type eq '2'
+            ? (
+                return_code                => $return_code,
+                original_day_of_processing => $orig_day,
+                original_user_id_number    => $orig_user_id,
+                )
+            : ()
+        ),
     );
 }
 
@@ -188,18 +221,28 @@ sub to_record ( $self ) {
 
     my $record = pack(
         $self->_pack_template(),
-        "1",
+        $self->record_type,
         $self->bsb_number,
         $self->account_number,
-        $self->indicator,
+
+        $self->record_type eq '1'
+        ? $self->indicator
+        : $self->return_code,
+
         $self->transaction_code,
-        sprintf( "%010d",$self->amount ),
+        sprintf( "%010d", $self->amount ),
         $self->title_of_account,
         $self->lodgement_reference,
         $self->bsb_number_trace,
         $self->account_number_trace,
         $self->remitter_name,
-        $self->withholding_tax,
+
+        $self->record_type eq '1'
+        ? ( $self->withholding_tax )
+        : (
+            $self->original_day_of_processing,
+            $self->original_user_id_number,
+        ),
     );
 
     return $record;
@@ -218,10 +261,11 @@ Boolean check on the transaction type
 =cut
 
 sub is_credit ( $self ) {
-    return ! $self->is_debit;
+    return !$self->is_debit;
 }
 
 sub is_debit ( $self ) {
+
     # there's only one debit transaction type code so
     # this is pretty straightforward
     return $self->transaction_code eq '13' ? 1 : 0;

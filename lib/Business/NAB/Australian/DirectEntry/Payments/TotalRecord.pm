@@ -90,6 +90,8 @@ sub _pack_template {
     return "A1 A7 A12 A10 A10 A10 A24 A6 A40";
 }
 
+sub record_type { 7 }
+
 =head1 METHODS
 
 =head2 new_from_record
@@ -116,7 +118,7 @@ sub new_from_record ( $class, $line ) {
         $record_count,
     ) = unpack( $class->_pack_template(), $line );
 
-    if ( $record_type ne '7' ) {
+    if ( $record_type ne $class->record_type ) {
         croak( "unsupported record type ($record_type)" );
     }
 
@@ -142,7 +144,7 @@ sub to_record ( $self ) {
 
     my $record = pack(
         $self->_pack_template(),
-        "7",
+        $self->record_type,
         $self->bsb_number,
         "",
         sprintf( "%010d", $self->net_total_amount ),

@@ -71,14 +71,17 @@ sub new_from_file (
     $sub_class_map,
     $split_char = undef,
 ) {
-
     open( my $fh, '<', $file );
 
     while ( my $line = <$fh> ) {
 
+        $line =~ s/\r\n$//;
+
         my ( $type ) = $split_char
             ? ( split( $split_char, $line ) )[ 0 ]
             : substr( $line, 0, 1 );
+
+        next if !length( $type );
 
         my $sub_class = $sub_class_map->{ $type };
         my $attr      = decamelize( $sub_class );

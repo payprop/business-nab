@@ -26,6 +26,14 @@ Class for parsing / creating a NAB BPAY batch payments file
 
 Class for building/parsing a "Australian Direct Entry Payments" file
 
+=head1 L<Business::NAB::Australian::DirectEntry::Returns>
+
+Class for building/parsing a "Australian Direct Entry Payments" return file
+
+=head1 L<Business::NAB::Australian::DirectEntry::Report>
+
+Class for building/parsing a "Australian Direct Entry Payments" report file
+
 =head1 L<Business::NAB::AccountInformation::File>
 
 Class for parsing a NAB "Account Information File (NAI/BAI2)" file
