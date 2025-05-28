@@ -172,9 +172,9 @@ sub to_file (
 
         my $TotalRecord = Business::NAB::Australian::DirectEntry::Payments::TotalRecord->new(
             bsb_number          => $bsb_number,
-            net_total_amount    => $net_total,
-            credit_total_amount => $credit_total,
-            debit_total_amount  => $debit_total,
+            net_total_amount    => $net_total    // 0,
+            credit_total_amount => $credit_total // 0,
+            debit_total_amount  => $debit_total  // 0,
             record_count        => $record_count,
         );
 
@@ -183,7 +183,7 @@ sub to_file (
 
     close( $fh );
 
-    return;
+    return 1;
 }
 
 =head1 SEE ALSO

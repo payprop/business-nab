@@ -18,7 +18,7 @@ my $class = join(
         Australian
         DirectEntry
         Payments
-    /
+        /,
 );
 
 use_ok( $class );
@@ -33,24 +33,24 @@ subtest 'parse' => sub {
     );
 
     isa_ok(
-        $Payments->descriptive_record->[0],
-        'Business::NAB::Australian::DirectEntry::Payments::DescriptiveRecord'
+        $Payments->descriptive_record->[ 0 ],
+        'Business::NAB::Australian::DirectEntry::Payments::DescriptiveRecord',
     );
 
-    is( scalar( $Payments->detail_record->@* ),6,'count of detail_record' );
+    is( scalar( $Payments->detail_record->@* ), 6, 'count of detail_record' );
 
     isa_ok(
-        $Payments->total_record->[0],
-        'Business::NAB::Australian::DirectEntry::Payments::TotalRecord'
+        $Payments->total_record->[ 0 ],
+        'Business::NAB::Australian::DirectEntry::Payments::TotalRecord',
     );
 
     subtest 'round trip' => sub {
 
-        my $fh = File::Temp->new;
+        my $fh       = File::Temp->new;
         my $tmp_file = $fh->filename;
         $Payments->to_file( $tmp_file );
 
-		files_eq_or_diff( $tmp_file,$example_file,{ style => 'Unified' } );
+        files_eq_or_diff( $tmp_file, $example_file, { style => 'Unified' } );
     };
 
 };
@@ -62,65 +62,68 @@ subtest 'instantiation + add attributes' => sub {
         $class,
     );
 
-    $Payments->add_descriptive_record({
+    $Payments->add_descriptive_record( {
         reel_sequence_number => '01',
-        institution_name => 'NAB',
-        user_name => 'NAB TEST',
-        user_number => 123456,
-        description => 'DrDebit',
-        process_date => '011223'
-    });
+        institution_name     => 'NAB',
+        user_name            => 'NAB TEST',
+        user_number          => 123456,
+        description          => 'DrDebit',
+        process_date         => '011223',
+    } );
 
-    $Payments->add_detail_record({
-        bsb_number => '083-047',
-        account_number => $_ x 9,
-        transaction_code => '13',
-        amount => 1,
-        title_of_account => " Beneficiary $_",
-        lodgement_reference => 'FOR DEMONSTRATION',
-        bsb_number_trace => '083-047',
+    $Payments->add_detail_record( {
+        bsb_number           => '083-047',
+        account_number       => $_ x 9,
+        transaction_code     => '13',
+        amount               => 1,
+        title_of_account     => " Beneficiary $_",
+        lodgement_reference  => 'FOR DEMONSTRATION',
+        bsb_number_trace     => '083-047',
         account_number_trace => '123456789',
-        remitter_name => 'NAB SAMPLE  TEST',
-        withholding_tax => '00000000',
-    }) for 1 .. 5;
+        remitter_name        => 'NAB SAMPLE  TEST',
+        withholding_tax      => '00000000',
+    } ) for 1 .. 5;
 
-    $Payments->add_detail_record({
-        bsb_number => '083-047',
-        account_number => '123456789',
-        transaction_code => '50',
-        amount => 5,
-        title_of_account => " NAB TEST 1",
-        lodgement_reference => 'FOR DEMONSTRATION',
-        bsb_number_trace => '083-047',
+    my $fh       = File::Temp->new;
+    my $tmp_file = $fh->filename;
+
+    ok( $Payments->to_file( $tmp_file, '999-999' ), '->to_file lacking credits' );
+
+    $Payments->add_detail_record( {
+        bsb_number           => '083-047',
+        account_number       => '123456789',
+        transaction_code     => '50',
+        amount               => 5,
+        title_of_account     => " NAB TEST 1",
+        lodgement_reference  => 'FOR DEMONSTRATION',
+        bsb_number_trace     => '083-047',
         account_number_trace => '123456789',
-        remitter_name => 'NAB SAMPLE  TEST',
-        withholding_tax => '00000000',
-    });
+        remitter_name        => 'NAB SAMPLE  TEST',
+        withholding_tax      => '00000000',
+    } );
 
-    is( scalar( $Payments->detail_record->@* ),6,'6 detail records added' );
+    is( scalar( $Payments->detail_record->@* ), 6, '6 detail records added' );
 
     subtest '->to_file (lacking total record)' => sub {
-        my $fh = File::Temp->new;
-        my $tmp_file = $fh->filename;
-        $Payments->to_file( $tmp_file,'999-999' );
+        $Payments->to_file( $tmp_file, '999-999' );
 
-        files_eq_or_diff( $tmp_file,$example_file,{ style => 'Unified' } );
+        files_eq_or_diff( $tmp_file, $example_file, { style => 'Unified' } );
     };
 
     subtest '->to_file (with total record)' => sub {
         $Payments->add_total_record(
-            bsb_number => '999-999',
-            net_total_amount => 0,
+            bsb_number          => '999-999',
+            net_total_amount    => 0,
             credit_total_amount => 5,
-            debit_total_amount => 5,
-            record_count => 6,
+            debit_total_amount  => 5,
+            record_count        => 6,
         );
 
-        my $fh = File::Temp->new;
+        my $fh       = File::Temp->new;
         my $tmp_file = $fh->filename;
         $Payments->to_file( $tmp_file );
 
-        files_eq_or_diff( $tmp_file,$example_file,{ style => 'Unified' } );
+        files_eq_or_diff( $tmp_file, $example_file, { style => 'Unified' } );
     };
 };
 
