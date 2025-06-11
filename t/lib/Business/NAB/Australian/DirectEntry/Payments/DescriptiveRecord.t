@@ -16,7 +16,7 @@ my $class = join(
         DirectEntry
         Payments
         DescriptiveRecord
-    /
+        /,
 );
 
 use_ok( $class );
@@ -30,13 +30,13 @@ subtest 'parse' => sub {
         $class,
     );
 
-    is( $DescriptiveRecord->reel_sequence_number,1,'->reel_sequence_number' );
-    is( $DescriptiveRecord->institution_name,'NAB','->institution_name' );
-    is( $DescriptiveRecord->user_name,'NAB TEST','->user_name' );
-    is( $DescriptiveRecord->user_number,123456,'->user_number' );
-    is( $DescriptiveRecord->description,'DrDebit','->description' );
-    isa_ok( $DescriptiveRecord->process_date,'DateTime' );
-    is( $DescriptiveRecord->process_date->ymd( '' ),'20231201','->process_date' );
+    is( $DescriptiveRecord->reel_sequence_number, 1,          '->reel_sequence_number' );
+    is( $DescriptiveRecord->institution_name,     'NAB',      '->institution_name' );
+    is( $DescriptiveRecord->user_name,            'NAB TEST', '->user_name' );
+    is( $DescriptiveRecord->user_number,          123456,     '->user_number' );
+    is( $DescriptiveRecord->description,          'DrDebit',  '->description' );
+    isa_ok( $DescriptiveRecord->process_date, 'DateTime' );
+    is( $DescriptiveRecord->process_date->ymd( '' ), '20231201', '->process_date' );
 
     my $bad_line = $example_line =~ s/^0/1/r;
 
@@ -51,40 +51,67 @@ subtest 'instantiation' => sub {
     isa_ok(
         my $DescriptiveRecord = $class->new(
             reel_sequence_number => '01',
-            institution_name => 'NAB',
-            user_name => 'NAB TEST',
-            user_number => 123456,
-            description => 'DrDebit',
-            process_date => '011223'
+            institution_name     => 'NAB',
+            user_name            => 'NAB TEST',
+            user_number          => 123456,
+            description          => 'DrDebit',
+            process_date         => '011223',
         ),
-        $class
+        $class,
     );
 
-    is( $DescriptiveRecord->reel_sequence_number,1,'trigger fires' );
-    isa_ok( $DescriptiveRecord->process_date,'DateTime','coercion of value' );
+    is( $DescriptiveRecord->reel_sequence_number, 1, 'trigger fires' );
+    isa_ok( $DescriptiveRecord->process_date, 'DateTime', 'coercion of value' );
 
-    is( $DescriptiveRecord->to_record,$example_line,'->to_record' );
+    is( $DescriptiveRecord->to_record, $example_line, '->to_record' );
 };
 
 subtest 'length constraints' => sub {
 
     my %attributes = (
         reel_sequence_number => '01',
-        institution_name => 'NAB',
-        user_name => 'NAB TEST',
-        user_number => 123456,
-        description => 'DrDebit',
+        institution_name     => 'NAB',
+        user_name            => 'NAB TEST',
+        user_number          => 123456,
+        description          => 'DrDebit',
     );
 
     foreach my $attr ( sort keys( %attributes ) ) {
 
         throws_ok(
-            sub { $class->new(
-                %attributes,
-                process_date => '011223',
-                $attr => $attributes{$attr} x 5,
-            ) },
+            sub {
+                $class->new(
+                    %attributes,
+                    process_date => '011223',
+                    $attr        => $attributes{ $attr } x 5,
+                );
+            },
             qr/string provided for $attr was outside/,
+        );
+    }
+};
+
+subtest 'BECS EBCDIC constraints' => sub {
+
+    my %attributes = (
+        institution_name => 'NÀB',
+        user_name        => 'NÀB TEST',
+        description      => 'DrDébit',
+    );
+
+    foreach my $attr ( sort keys( %attributes ) ) {
+
+        throws_ok(
+            sub {
+                $class->new(
+                    %attributes,
+                    reel_sequence_number => '01',
+                    process_date         => '011223',
+                    user_number          => 123456,
+                    $attr                => $attributes{ $attr },
+                );
+            },
+            qr/contains non BECS EBCDIC chars/,
         );
     }
 };

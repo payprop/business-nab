@@ -172,14 +172,33 @@ subtype 'NAB::Type::Indicator'
 => message { "The indicator provided, $_, does not match [ NTWXY]" }
 ;
 
+=item NAB::Type::Str
+
+A Str that is restricted to the BECS EBCDIC character set
+
+=cut
+
+my $EBCDIC_re = qr/[^A-Za-z0-9^_[\]'\'',?;:=#\/.*()&%!$ \@+-]/a;
+
+subtype 'NAB::Type::Str'
+    => as 'Maybe[Str]',
+    => where {
+    !defined( $_ )
+
+        # check for anything outside the BECS EBCDIC char set
+        or $_ !~ $EBCDIC_re;
+}
+=> message { "Str provided $_ contains non BECS EBCDIC chars" }
+;
+
 =back
 
 =head1 METHODS
 
 =head4 add_max_string_attribute
 
-Helper method to allow easier definition of Str types that are limited
-to a particular lengths. For example:
+Helper method to allow easier definition of NAB::Type::Str types that
+are limited to a particular lengths. For example:
 
     __PACKAGE__->add_max_string_attribute(
         'RecipientNumber[20]'
@@ -190,7 +209,7 @@ to a particular lengths. For example:
 Is equivalent to:
 
     subtype 'NAB::Type::RecipientNumber'
-        => as 'Maybe[Str]'
+        => as 'Maybe[NAB::Type::Str]'
         => where {
             ! defined( $_ )
             or length( $_ ) <= 20
@@ -237,15 +256,16 @@ sub add_max_string_attribute (
     my $attr_name = decamelize( $subtype_name );
 
     subtype "NAB::Type::$subtype_name"
-        => as 'Maybe[Str]'
+        => as 'NAB::Type::Str'
         => where {
         $max_length
             ? ( !defined( $_ ) or length( $_ ) <= $max_length )
             : 1;
     }
     => message {
-        "The string provided for $attr_name"
-            . " was outside 1..$max_length chars"
+        $_ =~ $EBCDIC_re
+            ? "Str provided $_ contains non BECS EBCDIC chars"
+            : "The string provided for $attr_name was outside 1..$max_length chars"
     }
     ;
 
