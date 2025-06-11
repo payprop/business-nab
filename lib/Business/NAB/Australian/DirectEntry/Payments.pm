@@ -162,19 +162,20 @@ sub to_file (
 
         my $record_count = scalar( $self->detail_record->@* );
 
-        # FIXME: "should be all zeros" - really? not the net of credit - debit?
-        my $net_total = 0;
-
         my $credit_total = sum map { $_->amount }
             grep { $_->is_credit } $self->detail_record->@*;
         my $debit_total = sum map { $_->amount }
             grep { $_->is_debit } $self->detail_record->@*;
 
+        $credit_total //= 0;
+        $debit_total  //= 0;
+        my $net_total = abs( $credit_total - $debit_total );
+
         my $TotalRecord = Business::NAB::Australian::DirectEntry::Payments::TotalRecord->new(
             bsb_number          => $bsb_number,
-            net_total_amount    => $net_total    // 0,
-            credit_total_amount => $credit_total // 0,
-            debit_total_amount  => $debit_total  // 0,
+            net_total_amount    => $net_total,
+            credit_total_amount => $credit_total,
+            debit_total_amount  => $debit_total,
             record_count        => $record_count,
         );
 

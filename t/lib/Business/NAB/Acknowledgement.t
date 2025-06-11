@@ -125,4 +125,59 @@ subtest 'parse PaymentsAcknowledgement' => sub {
     };
 };
 
+$example_file = "$Bin/example_files/rejected_disbursement.ack";
+
+subtest 'parse PaymentsAcknowledgement (rejected)' => sub {
+
+    isa_ok(
+        my $Ack = $class->new_from_xml( $example_file ),
+        $class,
+    );
+
+    isa_ok( $Ack->dom, 'XML::LibXML::Document' );
+
+    subtest 'attributes' => sub {
+        isa_ok( $Ack->date, 'DateTime' );
+        is( $Ack->customer_id,         'TEST01AU',             '->customer_id' );
+        is( $Ack->company_name,        'Test Company Pty Ltd', '->company_name' );
+        is( $Ack->original_message_id, '12334208',             '->original_message_id' );
+        is(
+            $Ack->user_message,
+            'Payment 12,334,212 has been rejected.',
+            '->user_message',
+        );
+        is( $Ack->status, 'rejected', '->status' );
+
+        is(
+            $Ack->detailed_message,
+            'Payment 12,334,212 has completed validation and has been'
+                . ' automatically rejected due to the following issues.',
+            '->detailed_message',
+        );
+
+        is(
+            $Ack->original_filename,
+            'DISBURSEMENT_20250610_01.ABA.pgp',
+            '->original_filename',
+        );
+
+        isa_ok( $Ack->issue->[ 0 ], 'Business::NAB::Acknowledgement::Issue' );
+        is( scalar( $Ack->issue->@* ), 2, 'number of ->issue' );
+        like(
+            $Ack->issue->[ 1 ]->detail,
+            qr/Invalid trailer record/,
+            '->issue->detail',
+        );
+        is( $Ack->issue->[ 1 ]->code, 'error', '->issue->code' );
+    };
+
+    subtest 'methods' => sub {
+        ok( $Ack->is_rejected,   '->is_rejected' );
+        ok( !$Ack->is_accepted,  '! ->is_accepted' );
+        ok( !$Ack->is_processed, '! ->is_processed' );
+        ok( !$Ack->is_pending,   '! ->is_pending' );
+        ok( !$Ack->is_declined,  '! ->is_declined' );
+        ok( !$Ack->is_received,  '! ->is_received' );
+    };
+};
 done_testing();
