@@ -207,24 +207,31 @@ sub new_from_file ( $class, $file ) {
 
         if ( $record_type eq '49' ) {
             $Account->control_total_a( $rest[ 0 ] );
-            $Account->control_total_b( $rest[ 1 ] );
 
-            $Account->validate_totals;
+            $File->is_bai2
+                ? $Account->number_of_records( $rest[ 1 ] )
+                : $Account->control_total_b( $rest[ 1 ] );
+
+            $Account->validate_totals( $File->is_bai2 );
         }
 
         if ( $record_type eq '98' ) {
             $Group->control_total_a( $rest[ 0 ] );
             $Group->number_of_accounts( $rest[ 1 ] );
-            $Group->control_total_b( $rest[ 2 ] );
 
-            $Group->validate_totals;
+            $File->is_bai2
+                ? $Group->number_of_records( $rest[ 2 ] )
+                : $Group->control_total_b( $rest[ 2 ] );
+
+            $Group->validate_totals( $File->is_bai2 );
         }
 
         if ( $record_type eq '99' ) {
             $File->control_total_a( $rest[ 0 ] );
             $File->number_of_groups( $rest[ 1 ] );
             $File->number_of_records( $rest[ 2 ] );
-            $File->control_total_b( $rest[ 3 ] );
+            $File->control_total_b( $rest[ 3 ] )
+                if !$File->is_bai2;
             $File->_raw_record_count(
                 $reconstructed_records->{ raw_record_count }
             );
@@ -266,7 +273,10 @@ sub validate_totals ( $self ) {
 
     foreach my $Group ( $self->groups->@* ) {
         $group_total_a += $Group->control_total_a;
-        $group_total_b += $Group->control_total_b;
+
+        if ( !$self->is_bai2 ) {
+            $group_total_b += $Group->control_total_b;
+        }
     }
 
     croak(
@@ -274,10 +284,12 @@ sub validate_totals ( $self ) {
             . "(@{[$self->control_total_a]})"
     ) if $group_total_a != $self->control_total_a;
 
-    croak(
-        "calculated sum ($group_total_b) != control_total_b "
-            . "(@{[$self->control_total_b]})"
-    ) if $group_total_b != $self->control_total_b;
+    if ( !$self->is_bai2 ) {
+        croak(
+            "calculated sum ($group_total_b) != control_total_b "
+                . "(@{[$self->control_total_b]})"
+        ) if $group_total_b != $self->control_total_b;
+    }
 
     return 1;
 }
@@ -359,10 +371,8 @@ Boolean check on the file type
 
 =cut
 
-# BAI files don't have the physical_record_length field so
-# use that to check which file type we're dealing with
 sub is_bai2 ( $self ) {
-    return !$self->physical_record_length;
+    return $self->file_sequence_number == 2;
 }
 
 sub _file_header ( $class, @fields ) {
@@ -374,7 +384,11 @@ sub _file_header ( $class, @fields ) {
         file_creation_time      => $fields[ 3 ],
         file_sequence_number    => $fields[ 4 ],
         physical_record_length  => $fields[ 5 ],
-        blocking_factor         => $fields[ 6 ],
+
+        # the spec says this is the 7th field, but in the BAI2 examples
+        # we have been provided it is the 8th... either way, it is the
+        # last field, hence -1
+        blocking_factor => $fields[ -1 ],
     );
 }
 

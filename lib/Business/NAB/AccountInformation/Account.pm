@@ -51,6 +51,8 @@ use Business::NAB::Types qw/
 
 =item control_total_b (Int)
 
+=item number_of_records (Int)
+
 =item transactions (ArrayRef[Business::NAB::AccountInformation::Transaction])
 
 =back
@@ -78,6 +80,7 @@ has [
     qw/
         control_total_a
         control_total_b
+        number_of_records
         /
 ] => (
     isa => 'Int',
@@ -169,13 +172,16 @@ Checks if the control_total_a and control_total_b values match the
 expected totals of the contained transaction items and transaction
 code values
 
-    $Account->validate_totals;
+    $Account->validate_totals( my $is_bai2 = 0 );
 
 Will throw an exception if any total doesn't match the expected value.
 
+Takes an optional boolean param to stipulate if the file type is BAI2
+(defaults to false).
+
 =cut
 
-sub validate_totals ( $self ) {
+sub validate_totals ( $self, $is_bai2 = 0 ) {
 
     my ( $trans_total, $excl_tax_interest ) = ( 0, 0 );
 
@@ -198,10 +204,12 @@ sub validate_totals ( $self ) {
             . "(@{[$self->control_total_a]})"
     ) if $trans_total != $self->control_total_a;
 
-    croak(
-        "calculated sum ($excl_tax_interest) != control_total_b "
-            . "(@{[$self->control_total_b]})"
-    ) if $excl_tax_interest != $self->control_total_b;
+    if ( !$is_bai2 ) {
+        croak(
+            "calculated sum ($excl_tax_interest) != control_total_b "
+                . "(@{[$self->control_total_b]})"
+        ) if $excl_tax_interest != $self->control_total_b;
+    }
 
     return 1;
 }

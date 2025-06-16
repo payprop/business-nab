@@ -191,7 +191,7 @@ subtest 'new_from_file (BAI2)' => sub {
     is( $File->control_total_a,   35352216, '->control_total_a' );
     is( $File->number_of_groups,  1,        '->number_of_groups' );
     is( $File->number_of_records, 29,       '->number_of_records' );
-    is( $File->control_total_b,   35351780, '->control_total_b' );
+    is( $File->control_total_b,   undef,    '->control_total_b' );
 
     ok( $File->validate_totals, '->validate_totals' );
 
@@ -218,7 +218,8 @@ subtest 'new_from_file (BAI2)' => sub {
         is( $Group->as_of_date->ymd,    '2021-05-21', '->as_of_date' );
         is( $Group->control_total_a,    35352216,     '->control_total_a' );
         is( $Group->number_of_accounts, 3,            '->number_of_accounts' );
-        is( $Group->control_total_b,    35351780,     '->control_total_b' );
+        is( $Group->control_total_b,    undef,        '->control_total_b' );
+        is( $Group->number_of_records,  27,           '->number_of_records' );
 
         subtest '->accounts' => sub {
 
@@ -228,7 +229,10 @@ subtest 'new_from_file (BAI2)' => sub {
                 'Business::NAB::AccountInformation::Account',
             );
 
-            ok( $Account->validate_totals, '->validate_totals' );
+            ok(
+                $Account->validate_totals( $File->is_bai2 ),
+                '->validate_totals',
+            );
 
             subtest '->transactions' => sub {
 
@@ -242,7 +246,10 @@ subtest 'new_from_file (BAI2)' => sub {
                     'Business::NAB::AccountInformation::Transaction',
                 );
 
-                ok( $Account->validate_totals, '->validate_totals' );
+                ok(
+                    $Account->validate_totals( $File->is_bai2 ),
+                    '->validate_totals',
+                );
             };
         };
     };

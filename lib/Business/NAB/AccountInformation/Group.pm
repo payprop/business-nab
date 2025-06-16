@@ -57,6 +57,8 @@ use Business::NAB::Types qw/
 
 =item control_total_b (Int)
 
+=item number_of_records (Int)
+
 =item accounts (ArrayRef[Business::NAB::AccountInformation::Account])
 
 =back
@@ -87,6 +89,7 @@ has [
         control_total_a
         number_of_accounts
         control_total_b
+        number_of_records
         /
 ] => (
     isa => 'Int',
@@ -165,13 +168,16 @@ sub new_from_record ( $class, @record ) {
 Checks if the control_total_a and control_total_b values match the
 expected totals of the contained accounts:
 
-    $Group->validate_totals;
+    $Group->validate_totals( my $is_bai2 = 0 );
 
 Will throw an exception if any total doesn't match the expected value.
 
+Takes an optional boolean param to stipulate if the file type is BAI2
+(defaults to false).
+
 =cut
 
-sub validate_totals ( $self ) {
+sub validate_totals ( $self, $is_bai2 = 0 ) {
 
     my $num_accounts = scalar( $self->accounts->@* );
     croak(
@@ -183,7 +189,10 @@ sub validate_totals ( $self ) {
 
     foreach my $Account ( $self->accounts->@* ) {
         $account_total_a += $Account->control_total_a;
-        $account_total_b += $Account->control_total_b;
+
+        if ( !$is_bai2 ) {
+            $account_total_b += $Account->control_total_b;
+        }
     }
 
     croak(
@@ -191,10 +200,12 @@ sub validate_totals ( $self ) {
             . "(@{[$self->control_total_a]})"
     ) if $account_total_a != $self->control_total_a;
 
-    croak(
-        "calculated sum ($account_total_b) != control_total_b "
-            . "(@{[$self->control_total_b]})"
-    ) if $account_total_b != $self->control_total_b;
+    if ( !$is_bai2 ) {
+        croak(
+            "calculated sum ($account_total_b) != control_total_b "
+                . "(@{[$self->control_total_b]})"
+        ) if $account_total_b != $self->control_total_b;
+    }
 
     return 1;
 }
