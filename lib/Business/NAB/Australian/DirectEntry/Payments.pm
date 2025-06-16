@@ -140,12 +140,14 @@ Writes the file content to the passed file path:
         $separator, # defaults to "\r\n"
     );
 
+This also does some validation on the totals in the records.
+
 =cut
 
 sub to_file (
     $self,
     $file,
-    $bsb_number = undef,
+    $bsb_number = "999-999",
     $sep = "\r\n",
 ) {
 
@@ -154,22 +156,36 @@ sub to_file (
     print $fh $self->descriptive_record->[ 0 ]->to_record . $sep;
     print $fh $_->to_record . $sep foreach $self->detail_record->@*;
 
+    my $record_count = scalar( $self->detail_record->@* );
+
+    my $credit_total = sum map { $_->amount }
+        grep { $_->is_credit } $self->detail_record->@*;
+    my $debit_total = sum map { $_->amount }
+        grep { $_->is_debit } $self->detail_record->@*;
+
+    $credit_total //= 0;
+    $debit_total  //= 0;
+    my $net_total = abs( $credit_total - $debit_total );
+
+    # net total should be zero as it is the net of credit - debit records
+    # and there should always be a record that nets off the other record
+    # type totals (to describe where funds go to/from). however if this is
+    # a returns file then this check does not apply
+    if (
+        $net_total != 0
+        && $self->blessed !~ /::Returns$/
+    ) {
+        croak(
+            "Net total not equal to zero ($net_total) file detail records do"
+                . " not balance, you have debits missing a credit or vice-versa"
+        );
+    }
+
     if ( my $TotalRecord = $self->total_record->[ 0 ] ) {
         print $fh $TotalRecord->to_record . $sep;
     } else {
         croak( "BSB number is required if total_record is not set" )
             if !$bsb_number;
-
-        my $record_count = scalar( $self->detail_record->@* );
-
-        my $credit_total = sum map { $_->amount }
-            grep { $_->is_credit } $self->detail_record->@*;
-        my $debit_total = sum map { $_->amount }
-            grep { $_->is_debit } $self->detail_record->@*;
-
-        $credit_total //= 0;
-        $debit_total  //= 0;
-        my $net_total = abs( $credit_total - $debit_total );
 
         my $TotalRecord = Business::NAB::Australian::DirectEntry::Payments::TotalRecord->new(
             bsb_number          => $bsb_number,

@@ -87,7 +87,10 @@ subtest 'instantiation + add attributes' => sub {
     my $fh       = File::Temp->new;
     my $tmp_file = $fh->filename;
 
-    ok( $Payments->to_file( $tmp_file, '999-999' ), '->to_file lacking credits' );
+    throws_ok(
+        sub { $Payments->to_file( $tmp_file ); },
+        qr/you have debits missing a credit/,
+    );
 
     $Payments->add_detail_record( {
         bsb_number           => '083-047',
