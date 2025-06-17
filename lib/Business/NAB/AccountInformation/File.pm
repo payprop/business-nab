@@ -330,10 +330,7 @@ sub reconstruct_file_records ( $self, $file ) {
 
         # a trailing / means the last field of the record is complete,
         # otherwise it continues on the next line (which should be a
-        # Continuation record (88) - TODO: clarify if fields can be
-        # split at the end of the line and if they need to be put
-        # back together again when the next is a continuation (see the
-        # Transaction detail for an example of possible splitting)
+        # Continuation record (88)
         if ( $rest[ -1 ] =~ m!/$! ) {
             chop( $rest[ -1 ] );
             $field_continues = 0;
@@ -343,8 +340,22 @@ sub reconstruct_file_records ( $self, $file ) {
 
         if ( $record_type eq '88' ) {
 
-            # continuation of the previous record
-            $records[ -1 ] = [ @{ $records[ -1 ] }, @rest ];
+            # continuation of the previous record, this is a little
+            # bit messy depending on the previous record type
+
+            if (
+                $records[ -1 ][ 0 ] eq '16'
+
+                # the previous record was complete, append to the
+                # last field in that record
+                && scalar( $records[ -1 ]->@* ) == 7
+            ) {
+                $records[ -1 ][ -1 ] .= ' ' . join( ' ', @rest );
+            } else {
+
+                # the previous record was incomplete, complete it
+                $records[ -1 ] = [ @{ $records[ -1 ] }, @rest ];
+            }
         } else {
             push( @records, [ $record_type, @rest ] );
         }

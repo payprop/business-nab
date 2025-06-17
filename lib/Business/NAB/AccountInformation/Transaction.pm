@@ -45,7 +45,9 @@ use Business::NAB::Types qw/
 
 =item funds_type (Str, max length 1)
 
-=item reference_number (Str, max length 4096)
+=item bank_reference (Str, max length 4096)
+
+=item customer_reference (Str, max length 4096)
 
 =item text (Str, max length 4096)
 
@@ -58,7 +60,8 @@ use Business::NAB::Types qw/
 foreach my $str_attr (
     'transaction_code[3]',
     'funds_type[1]',
-    'reference_number[4096]',
+    'bank_reference[4096]',
+    'customer_reference[4096]',
     'text[4096]',
 ) {
     __PACKAGE__->add_max_string_attribute(
@@ -106,7 +109,7 @@ the result of parsing the already parsed line:
 
 sub new_from_record ( $class, @record ) {
 
-    my ( $record_type, $trans_code, $amount, $funds_type, $ref_number, $text )
+    my ( $record_type, $trans_code, $amount, $funds_type, $bank_ref, $cust_ref, @text )
         = @record;
 
     if ( $record_type ne '16' ) {
@@ -117,8 +120,9 @@ sub new_from_record ( $class, @record ) {
         transaction_code   => $trans_code,
         amount_minor_units => $amount,
         funds_type         => $funds_type,
-        reference_number   => $ref_number,
-        text               => $text,
+        bank_reference     => $bank_ref,
+        customer_reference => $cust_ref,
+        text               => join( " ", @text ),
     );
 }
 

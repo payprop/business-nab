@@ -24,7 +24,7 @@ use_ok( $class );
 
 subtest 'parse' => sub {
 
-    my $example_line = '16,495,450000,0,0,INTERNET TRANSFER';
+    my $example_line = '16,495,450000,0,B,C,INTERNET TRANSFER';
     isa_ok(
         my $Transaction = $class->new_from_raw_record( $example_line ),
         $class,
@@ -33,7 +33,8 @@ subtest 'parse' => sub {
     is( $Transaction->transaction_code,   '495',               '->transaction_code' );
     is( $Transaction->amount_minor_units, 450000,              '->amount_minor_units' );
     is( $Transaction->funds_type,         0,                   '->funds_type' );
-    is( $Transaction->reference_number,   0,                   '->reference_number' );
+    is( $Transaction->bank_reference,     'B',                 '->bank_reference' );
+    is( $Transaction->customer_reference, 'C',                 '->customer_reference' );
     is( $Transaction->text,               'INTERNET TRANSFER', '->text' );
 
     ok( $Transaction->is_debit,   '->is_debit' );
