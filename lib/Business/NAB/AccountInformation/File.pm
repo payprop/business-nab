@@ -73,9 +73,11 @@ load( $parent . "::$_" ) for @subclasses;
 
 =item file_sequence_number (NAB::Type::PositiveInt)
 
-=item physical_record_length (NAB::Type::PositiveInt)
+=item physical_record_length (NAB::Type::PositiveIntOrZero)
 
-=item blocking_factor (NAB::Type::PositiveInt)
+=item blocking_factor (NAB::Type::PositiveIntOrZero)
+
+=item version_number (NAB::Type::PositiveInt)
 
 =item control_total_a (Int)
 
@@ -116,9 +118,20 @@ has [
         blocking_factor
         /
 ] => (
-    isa      => 'NAB::Type::PositiveInt',
+    isa      => 'NAB::Type::PositiveIntOrZero',
     is       => 'ro',
     required => 1,
+);
+
+has [
+    qw/
+        version_number
+        /
+] => (
+    isa      => 'NAB::Type::PositiveInt',
+    is       => 'ro',
+    required => 0,
+    default  => sub { 1 },
 );
 
 has [
@@ -383,7 +396,7 @@ Boolean check on the file type
 =cut
 
 sub is_bai2 ( $self ) {
-    return $self->file_sequence_number == 2;
+    return $self->version_number == 2;
 }
 
 sub _file_header ( $class, @fields ) {
@@ -394,12 +407,12 @@ sub _file_header ( $class, @fields ) {
         file_creation_date      => $fields[ 2 ],
         file_creation_time      => $fields[ 3 ],
         file_sequence_number    => $fields[ 4 ],
-        physical_record_length  => $fields[ 5 ],
+        physical_record_length  => $fields[ 5 ] || 0,
+        blocking_factor         => $fields[ 6 ] || 0,
 
-        # the spec says this is the 7th field, but in the BAI2 examples
-        # we have been provided it is the 8th... either way, it is the
-        # last field, hence -1
-        blocking_factor => $fields[ -1 ],
+        ( scalar( @fields ) == 8 )
+        ? ( version_number => $fields[ 7 ] )
+        : (),
     );
 }
 

@@ -185,8 +185,8 @@ subtest 'new_from_file (BAI2)' => sub {
     is( $File->file_creation_date->ymd, '2021-05-21', '->file_creation_date' );
     is( $File->file_creation_time,      '0400',       '->file_creation_time' );
     is( $File->file_sequence_number,    2,            '->file_sequence_number' );
-    is( $File->physical_record_length,  '',           '->physical_record_length' );
-    is( $File->blocking_factor,         2,            '->blocking_factor' );
+    is( $File->physical_record_length,  0,            '->physical_record_length' );
+    is( $File->blocking_factor,         0,            '->blocking_factor' );
 
     is( $File->control_total_a,   35352216, '->control_total_a' );
     is( $File->number_of_groups,  1,        '->number_of_groups' );
