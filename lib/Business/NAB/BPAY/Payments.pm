@@ -40,6 +40,7 @@ use autodie qw/ :all /;
 use Carp    qw/ croak /;
 
 use Moose;
+with 'Business::NAB::Role::AttributeContainer';
 extends 'Business::NAB::FileContainer';
 
 use Moose::Util::TypeConstraints;
@@ -158,7 +159,7 @@ sub to_file (
 
     close( $fh );
 
-    return;
+    return 1;
 }
 
 =head1 SEE ALSO

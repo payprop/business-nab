@@ -36,6 +36,7 @@ use Carp    qw/ croak /;
 use XML::LibXML;
 
 use Moose;
+with 'Business::NAB::Role::AttributeContainer';
 extends 'Business::NAB::FileContainer';
 
 use Moose::Util::TypeConstraints;
