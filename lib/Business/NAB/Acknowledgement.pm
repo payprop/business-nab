@@ -212,6 +212,8 @@ sub new_from_xml ( $class, $file_or_string ) {
 
 =head2 is_received
 
+=head2 is_held
+
 Boolean checks on the acknowledgement:
 
     if ( $Ack->is_accepted ) {
@@ -220,10 +222,15 @@ Boolean checks on the acknowledgement:
 
 =cut
 
-sub is_accepted  ( $self ) { return $self->_is_status( 'accepted' ) }
+sub is_accepted ( $self ) {
+    return $self->_is_status( 'accepted' )
+        || $self->_is_status( 'success' );
+}
+
 sub is_processed ( $self ) { return $self->_is_status( 'processed' ) }
 sub is_pending   ( $self ) { return $self->_is_status( 'pending' ) }
 sub is_rejected  ( $self ) { return $self->_is_status( 'rejected' ) }
+sub is_held      ( $self ) { return $self->_is_status( 'held' ) }
 sub is_declined  ( $self ) { return $self->_is_status( 'declined' ) }
 sub is_received  ( $self ) { return $self->_is_status( 'received' ) }
 
@@ -269,7 +276,7 @@ sub _parse_payments_ack ( $Node ) {
 
     ( $attributes{ status } ) = (
         $attributes{ user_message }
-            =~ /(ACCEPTED|PROCESSED|REJECTED|PENDING|DECLINED)/i
+            =~ /(ACCEPTED|PROCESSED|REJECTED|PENDING|DECLINED|SUCCESS|HELD)/i
     );
 
     $attributes{ status } = lc( $attributes{ status } );
@@ -297,6 +304,7 @@ sub _parse_common_ack ( $Node ) {
             @{ $attributes{ issue } },
             {
                 code   => $Issue->getAttribute( 'type' ),
+                itemId => $Issue->getAttribute( 'itemId' ),
                 detail => $Issue->to_literal,
             },
         );
