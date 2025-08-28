@@ -123,15 +123,51 @@ subtype 'NAB::Type::PositiveIntOrZero'
 
 =item NAB::Type::BSBNumber
 
-A Str of the form C</^\d{3}-?\d{3}$/>
+=item NAB::Type::BSBNumberNoDash
+
+A Str of the form C</^\d{3}-\d{3}$/>
+
+A Str of the form C</^\d{6}$/>
+
+Some file formats for NAB require a BSB with the dash, while other require
+the BSB without the dash. This is a hard requirement and files will be
+rejected if you fail to handle it.
+
+The types here are defined so that you can pass either format in and they
+will be coerced to the correct format for the file type in question.
 
 =cut
 
 subtype 'NAB::Type::BSBNumber'
     => as 'Str',
-    => where { $_ =~ /^\d{3}-?\d{3}$/ }
-=> message { "The BSB provided, $_, does not match \\d{3}-?\\d{3}" }
+    => where { $_ =~ /^\d{3}-\d{3}$/ }
+=> message { "The BSB provided, $_, does not match \\d{3}-\\d{3}" }
 ;
+
+subtype 'NAB::Type::BSBNumberNoDash'
+    => as 'Str',
+    => where { $_ =~ /^\d{6}$/ }
+=> message { "The BSB provided, $_, does not match \\d{6}" }
+;
+
+coerce 'NAB::Type::BSBNumber'
+    => from 'Str'
+    => via {
+
+    # NAB require the - char, ensure it's there
+    $_ =~ s/^(\d{3})(\d{3})/$1-$2/;
+    return $_;
+    };
+
+coerce 'NAB::Type::BSBNumberNoDash'
+    => from 'Str'
+    => via {
+
+    # NAB don't require the - char, ensure it's not there
+    $_ =~ s/^(\d{3})-(\d{3})/$1$2/;
+    return $_;
+    };
+
 
 =item NAB::Type::AccountNumber
 

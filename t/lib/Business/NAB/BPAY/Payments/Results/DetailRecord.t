@@ -59,7 +59,7 @@ subtest 'instantiation' => sub {
     isa_ok(
         my $DetailRecord = $class->new(
             biller_code                  => '7773',
-            payment_account_bsb          => '083-004',
+            payment_account_bsb          => '083004',
             payment_account_number       => '035261665',
             customer_reference_number    => '13863530005',
             amount                       => 12345,
@@ -94,7 +94,7 @@ subtest 'type constraints' => sub {
                 $class->new(
                     %attributes,
                     $attr                  => $attributes{ $attr } x 5,
-                    payment_account_bsb    => '083-004',
+                    payment_account_bsb    => '083004',
                     payment_account_number => '035261665',
                     amount                 => 12345,
                 );

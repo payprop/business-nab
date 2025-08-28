@@ -82,6 +82,7 @@ has [ qw/ bsb_number bsb_number_trace / ] => (
     is       => 'ro',
     isa      => 'NAB::Type::BSBNumber',
     required => 1,
+    coerce   => 1,
 );
 
 has [ qw/ account_number account_number_trace / ] => (

@@ -32,8 +32,10 @@ subtest 'parse' => sub {
     is( $DetailRecord->biller_code,            '7773',      '->biller_code' );
     is( $DetailRecord->payment_account_bsb,    '083004',    '->payment_account_bsb' );
     is( $DetailRecord->payment_account_number, '035261665', '->payment_account_number' );
-    is( $DetailRecord->customer_reference_number, '13863530005',
-        '->customer_reference_number' );
+    is(
+        $DetailRecord->customer_reference_number, '13863530005',
+        '->customer_reference_number',
+    );
     is( $DetailRecord->amount,                12345,        '->amount' );
     is( $DetailRecord->lodgement_reference_1, 'TransNo001', '->lodgement_reference_1' );
     is( $DetailRecord->lodgement_reference_2, '',           '->lodgement_reference_2' );
@@ -52,7 +54,7 @@ subtest 'instantiation' => sub {
     isa_ok(
         my $DetailRecord = $class->new(
             biller_code               => '7773',
-            payment_account_bsb       => '083-004',
+            payment_account_bsb       => '083004',
             payment_account_number    => '035261665',
             customer_reference_number => '13863530005',
             amount                    => 12345,
@@ -81,7 +83,7 @@ subtest 'type constraints' => sub {
                 $class->new(
                     %attributes,
                     $attr                  => $attributes{ $attr } x 5,
-                    payment_account_bsb    => '083-004',
+                    payment_account_bsb    => '083004',
                     payment_account_number => '035261665',
                     amount                 => 12345,
                 );

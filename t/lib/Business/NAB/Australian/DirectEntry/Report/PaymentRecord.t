@@ -86,4 +86,4 @@ subtest 'instantiation (debit)' => sub {
 done_testing();
 
 __DATA__
-53,DNN,DebitLodgementRef,1000,AUD,CR,Test NAB Account,084737,576512164
+53,DNN,DebitLodgementRef,1000,AUD,CR,Test NAB Account,084-737,576512164

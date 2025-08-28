@@ -75,6 +75,7 @@ has [ qw/ bsb_number / ] => (
     is       => 'ro',
     isa      => 'NAB::Type::BSBNumber',
     required => 1,
+    coerce   => 1,
 );
 
 has [ qw/ account_number / ] => (

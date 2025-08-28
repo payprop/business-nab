@@ -241,7 +241,7 @@ sub to_file (
         text => "(c) 2012 National Australia Bank Limit ABN 12 004 044 937",
     );
 
-    print $fh $DisclaimerRecord->to_record;
+    print $fh $DisclaimerRecord->to_record . $sep;
 
     close( $fh );
 

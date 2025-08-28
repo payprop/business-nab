@@ -65,4 +65,4 @@ subtest 'instantiation (credit)' => sub {
 done_testing();
 
 __DATA__
-61,UXD,DEN,DebitLodgementRef,1000,AUD,CR,Test NAB Account,084737,123456789,,The Account Number 123456789 is Invalid.
+61,UXD,DEN,DebitLodgementRef,1000,AUD,CR,Test NAB Account,084-737,123456789,,The Account Number 123456789 is Invalid.

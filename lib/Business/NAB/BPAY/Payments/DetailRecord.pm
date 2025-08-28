@@ -50,7 +50,7 @@ no warnings qw/ experimental::signatures /;
 
 =item biller_code (Str, max length 10)
 
-=item payment_account_bsb (NAB::Type::BSBNumber)
+=item payment_account_bsb (NAB::Type::BSBNumberNoDash)
 
 =item payment_account_number (NAB::Type::AccountNumber)
 
@@ -70,8 +70,9 @@ no warnings qw/ experimental::signatures /;
 
 has [ qw/ payment_account_bsb / ] => (
     is       => 'ro',
-    isa      => 'NAB::Type::BSBNumber',
+    isa      => 'NAB::Type::BSBNumberNoDash',
     required => 1,
+    coerce   => 1,
 );
 
 has [ qw/ payment_account_number / ] => (
