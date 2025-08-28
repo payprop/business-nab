@@ -148,11 +148,11 @@ sub to_record ( $self ) {
         $self->record_type,
         $self->bsb_number,
         "",
-        sprintf( "%010d", $self->net_total_amount ),
-        sprintf( "%010d", $self->credit_total_amount ),
-        sprintf( "%010d", $self->debit_total_amount ),
+        sprintf( "%010s", $self->net_total_amount ),
+        sprintf( "%010s", $self->credit_total_amount ),
+        sprintf( "%010s", $self->debit_total_amount ),
         "",
-        sprintf( "%06d", $self->record_count ),
+        sprintf( "%06s", $self->record_count ),
         "",
     );
 

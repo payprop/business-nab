@@ -179,11 +179,11 @@ sub to_record ( $self ) {
     my $record = pack(
         $self->_pack_template(),
         "2",
-        sprintf( "%010d", $self->biller_code ),
+        sprintf( "%010s", $self->biller_code ),
         $bsb,
         $self->payment_account_number,
         $self->customer_reference_number,
-        sprintf( "%013d", $self->amount ),
+        sprintf( "%013s", $self->amount ),
         $self->lodgement_reference_1 // '',
         $self->lodgement_reference_2 // '',
         $self->lodgement_reference_3 // '',

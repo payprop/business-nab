@@ -231,7 +231,7 @@ sub to_record ( $self ) {
         : $self->return_code,
 
         $self->transaction_code,
-        sprintf( "%010d", $self->amount ),
+        sprintf( "%010s", $self->amount ),
         $self->title_of_account,
         $self->lodgement_reference,
         $self->bsb_number_trace,

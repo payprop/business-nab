@@ -34,7 +34,7 @@ subtest 'parse' => sub {
     is( $DetailRecord->account_number,       '111111111',         '->account_number' );
     is( $DetailRecord->indicator,            ' ',                 '->indicator' );
     is( $DetailRecord->transaction_code,     '13',                '->transaction_code' );
-    is( $DetailRecord->amount,               '0000000001',        '->amount' );
+    is( $DetailRecord->amount,               '0000130511',        '->amount' );
     is( $DetailRecord->title_of_account,     ' Beneficiary 1',    '->title_of_account' );
     is( $DetailRecord->lodgement_reference,  'FOR DEMONSTRATION', '->lodgement_reference' );
     is( $DetailRecord->bsb_number_trace,     '083-047',           '->bsb_number_trace' );
@@ -57,7 +57,7 @@ subtest 'instantiation' => sub {
             bsb_number           => '083-047',
             account_number       => '111111111',
             transaction_code     => '13',
-            amount               => 1,
+            amount               => 1305.11 * 100,
             title_of_account     => ' Beneficiary 1',
             lodgement_reference  => 'FOR DEMONSTRATION',
             bsb_number_trace     => '083-047',
@@ -91,7 +91,7 @@ subtest 'type constraints' => sub {
                 $class->new(
                     %attributes,
                     $attr            => $attributes{ $attr } x 5,
-                    amount           => 1,
+                    amount           => 1305.11 * 100,
                     indicator        => 'Y',
                     bsb_number       => '083-047',
                     bsb_number_trace => '083-047',
@@ -107,7 +107,7 @@ subtest 'type constraints' => sub {
     }
 
     my %common = (
-        amount           => 1,
+        amount           => 1305.11 * 100,
         bsb_number       => '083-047',
         bsb_number_trace => '083-047',
         withholding_tax  => 0,
@@ -169,7 +169,7 @@ subtest 'coercion' => sub {
         lodgement_reference  => 'FOR DEMONSTRATION',
         account_number_trace => '123456789',
         remitter_name        => 'NAB SAMPLE  TEST',
-        amount               => 1,
+        amount               => 1305.11 * 100,
         indicator            => 'Y',
         bsb_number           => '083047',
         bsb_number_trace     => '083947',
@@ -186,4 +186,4 @@ subtest 'coercion' => sub {
 done_testing();
 
 __DATA__
-1083-047111111111 130000000001 Beneficiary 1                  FOR DEMONSTRATION 083-047123456789NAB SAMPLE  TEST00000000
+1083-047111111111 130000130511 Beneficiary 1                  FOR DEMONSTRATION 083-047123456789NAB SAMPLE  TEST00000000
