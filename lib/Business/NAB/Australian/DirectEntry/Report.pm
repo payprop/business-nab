@@ -89,7 +89,7 @@ to the arrays:
     $Report->add_header_record( $HeaderRecord );
     $Report->add_payment_record( $PaymentRecord );
     $Report->add_value_summary( $ValueSummary );
-    $Report->add_failed_summary( $FailedRecord );
+    $Report->add_failed_record( $FailedRecord );
     $Report->add_failed_summary( $FailedSummary );
     $Report->add_trailer_record( $TrailerRecord );
     $Report->add_disclaimer_record( $DisclaimerRecord );
@@ -102,7 +102,7 @@ to the arrays:
 
 =item value_summary (ArrayRef[Obj])
 
-=item failed_summary (ArrayRef[Obj])
+=item failed_record (ArrayRef[Obj])
 
 =item failed_summary (ArrayRef[Obj])
 
@@ -247,6 +247,26 @@ sub to_file (
 
     return;
 }
+
+=head2 original_filename
+
+An alias for the header_record C<import_file_name>
+
+=cut
+
+sub original_filename ( $self ) {
+    $self->header_record->[ 0 ]->import_file_name;
+}
+
+=head2 status
+
+Hardcoded to "PROCESSED" - as per NAB's documentation that states
+"This report assists with confirming the processing of your payment
+file..."
+
+=cut
+
+sub status ( $self ) { 'PROCESSED' }
 
 =head1 SEE ALSO
 

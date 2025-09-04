@@ -74,7 +74,7 @@ has [
         /
 ] => (
     is       => 'ro',
-    isa      => 'NAB::Type::PositiveInt',
+    isa      => 'NAB::Type::PositiveIntOrZero',
     required => 1,
 );
 
