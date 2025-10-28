@@ -97,6 +97,37 @@ coerce 'NAB::Type::StatementDate'
     return DateTime::Format::DateParse->parse_datetime( "$yyyy-$mm-$dd" );
     };
 
+=item NAB::Type::BRFInt
+
+=cut
+
+subtype 'NAB::Type::BRFInt'
+    => as 'Int'
+    ;
+
+coerce 'NAB::Type::BRFInt'
+    => from 'Str'
+    => via {
+    my $str = $_;
+
+    # trailer record amounts in BPAY Remittance Files use the last
+    # character to represent:
+    #   - the last digit
+    #   - the sign
+    #
+    # so we convert that to an actual signed integer here
+    # see also: Business::NAB::BPAY::Remittance::File::TrailerRecord
+    # sub _brf_int
+    if ( $str =~ /[{A-I]$/ ) {
+        $str =~ tr/{A-I/0-9/;
+    } elsif ( $str =~ /[}J-R]$/ ) {
+        $str =~ tr/}J-R/0-9/;
+        $str *= -1;
+    }
+
+    return $str;
+    };
+
 =item NAB::Type::PositiveInt
 
 An Int greater than zero

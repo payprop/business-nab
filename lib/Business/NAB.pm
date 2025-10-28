@@ -22,6 +22,10 @@ namespace. All types are namespaced to "NAB::Type::*".
 
 Class for parsing / creating a NAB BPAY batch payments file
 
+=head1 L<Business::NAB::BPAY::Remittance::File>
+
+Class for parsing / creating a NAB BPAY remittance/reporting file
+
 =head1 L<Business::NAB::Australian::DirectEntry::Payments>
 
 Class for building/parsing a "Australian Direct Entry Payments" file
