@@ -19,7 +19,6 @@ WriteMakefile(
         'File::Temp'                   => 0,
         'List::Util'                   => 0,
         'Module::Load'                 => 0.34,
-        'Mojolicious'                  => 8.52, 
         'Moose'                        => 2.2012,
         'Moose::Role'                  => 2.2012,
         'Moose::Util::TypeConstraints' => 2.2012,

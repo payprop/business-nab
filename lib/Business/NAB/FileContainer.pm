@@ -11,7 +11,7 @@ use Carp    qw/ croak /;
 use Moose;
 no warnings qw/ experimental::signatures /;
 
-use Mojo::Util qw/ decamelize /;
+use Business::NAB::Types qw/ decamelize /;
 
 sub new_from_file (
     $self,

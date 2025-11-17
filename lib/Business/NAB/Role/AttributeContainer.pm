@@ -11,7 +11,7 @@ use Moose::Util::TypeConstraints;
 no warnings qw/ experimental::signatures /;
 
 use Module::Load;
-use Mojo::Util qw/ decamelize /;
+use Business::NAB::Types qw/ decamelize /;
 
 sub load_attributes (
     $self,

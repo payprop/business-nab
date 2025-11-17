@@ -36,11 +36,11 @@ use Moose::Util::TypeConstraints;
 no warnings qw/ experimental::signatures /;
 
 use DateTime::Format::DateParse;    ## no critic
-use Mojo::Util qw/ decamelize /;
 use Exporter::Easy (
     OK => [
         qw/
             add_max_string_attribute
+            decamelize
             /
     ]
 );
@@ -358,6 +358,18 @@ sub add_max_string_attribute (
 
         %attr_spec,
     );
+}
+
+# taken from Mojo::Util - rather than pulling in the
+# entire Mojolicious dist, we'll just "inline" it
+sub decamelize {
+    my $str = shift;
+    return $str if $str !~ /^[A-Z]/;
+
+    # snake_case words
+    return join '-', map {
+        join( '_', map { lc } grep { length } split /([A-Z]{1}[^A-Z]*)/ )
+    } split /::/, $str;
 }
 
 1;
