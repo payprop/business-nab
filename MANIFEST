@@ -45,6 +45,7 @@ README.pod
 t/lib/Business/NAB/Acknowledgement.t
 t/lib/Business/NAB/Acknowledgement/Issue.t
 t/lib/Business/NAB/BPAY/Remittance/File.t
+t/lib/Business/NAB/BPAY/Remittance/File/TrailerRecord.t
 t/lib/Business/NAB/BPAY/Payments/DetailRecord.t
 t/lib/Business/NAB/BPAY/Payments/Results.t
 t/lib/Business/NAB/BPAY/Payments/HeaderRecord.t

@@ -76,7 +76,7 @@ subtest 'instantiation + add attributes' => sub {
         [ qw/ 15 005 / ],
         [ qw/ 15 004 / ],
         [ qw/ 15 003 / ],
-        [ qw/ 15 002 / ],
+        [ qw/ 25 002 / ],
     ) {
         my ( $pit, $ecr ) = $payment->@*;
 
@@ -106,13 +106,13 @@ subtest 'instantiation + add attributes' => sub {
 
     subtest '->to_file (with trailer record)' => sub {
         $File->add_trailer_record( {
-            'amount_of_error_corrections' => 50000,
+            'amount_of_error_corrections' => 40000,
             'amount_of_payments'          => 70000,
-            'amount_of_reversals'         => 0,
+            'amount_of_reversals'         => 10000,
             'biller_code'                 => '0000187536',
-            'number_of_error_corrections' => 5,
+            'number_of_error_corrections' => 4,
             'number_of_payments'          => 7,
-            'number_of_reversals'         => 0,
+            'number_of_reversals'         => 1,
             'settlement_amount'           => 20000,
         } );
 

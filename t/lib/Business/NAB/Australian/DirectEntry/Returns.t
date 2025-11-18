@@ -38,11 +38,32 @@ subtest 'parse' => sub {
     );
 
     is( scalar( $Returns->detail_record->@* ), 14, 'count of detail_record' );
-    is(
-        $Returns->detail_record->[ 3 ]->return_code_description,
-        'Refer to customer',
-        '->return_code_description',
-    );
+
+    subtest '->detail_record' => sub {
+        isa_ok(
+            my $DetailRecord = $Returns->detail_record->[ 3 ],
+            'Business::NAB::Australian::DirectEntry::Returns::DetailRecord',
+        );
+
+        is(
+            $DetailRecord->return_code_description,
+            'Refer to customer',
+            '->return_code_description',
+        );
+
+        is( $DetailRecord->return_code, '6', '->return_code' );
+        is(
+            $DetailRecord->original_day_of_processing,
+            '24',
+            '->original_day_of_processing',
+        );
+
+        is(
+            $DetailRecord->original_user_id_number,
+            '614409',
+            '->original_user_id_number',
+        );
+    };
 
     isa_ok(
         $Returns->total_record->[ 0 ],

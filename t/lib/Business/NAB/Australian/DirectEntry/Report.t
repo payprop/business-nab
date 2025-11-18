@@ -32,6 +32,13 @@ subtest 'parse' => sub {
         $class,
     );
 
+    is(
+        $Report->original_filename,
+        'MultiSAmpleDC_pressinvalid.txt',
+        '->original_filename',
+    );
+    is( $Report->status, 'PROCESSED', '->status' );
+
     isa_ok(
         $Report->header_record->[ 0 ],
         'Business::NAB::Australian::DirectEntry::Report::HeaderRecord',

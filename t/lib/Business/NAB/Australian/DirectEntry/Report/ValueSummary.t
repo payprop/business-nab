@@ -30,6 +30,10 @@ subtest 'parse' => sub {
         $class,
     );
 
+    ok( $ValueSummary->is_credit,  '->is_credit' );
+    ok( !$ValueSummary->is_debit,  '! ->is_debit' );
+    ok( !$ValueSummary->is_failed, '->is_failed' );
+
     my $bad_line = $example_line =~ s/^5/1/r;
 
     throws_ok(

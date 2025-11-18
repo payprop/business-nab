@@ -71,6 +71,7 @@ subtest 'parse MessageAcknowledgement' => sub {
         ok( !$Ack->is_pending,   '! ->is_pending' );
         ok( !$Ack->is_declined,  '! ->is_declined' );
         ok( !$Ack->is_received,  '! ->is_received' );
+        ok( !$Ack->is_held,      '! ->is_held' );
     };
 };
 
@@ -122,6 +123,7 @@ subtest 'parse PaymentsAcknowledgement' => sub {
         ok( !$Ack->is_pending,  '! ->is_pending' );
         ok( !$Ack->is_declined, '! ->is_declined' );
         ok( !$Ack->is_received, '! ->is_received' );
+        ok( !$Ack->is_held,     '! ->is_held' );
     };
 };
 
@@ -178,6 +180,7 @@ subtest 'parse PaymentsAcknowledgement (rejected)' => sub {
         ok( !$Ack->is_pending,   '! ->is_pending' );
         ok( !$Ack->is_declined,  '! ->is_declined' );
         ok( !$Ack->is_received,  '! ->is_received' );
+        ok( !$Ack->is_held,      '! ->is_held' );
     };
 };
 done_testing();
