@@ -53,7 +53,7 @@ extends 'Business::NAB::FileContainer';
 use Moose::Util::TypeConstraints;
 no warnings qw/ experimental::signatures /;
 
-use List::Util qw/ sum /;
+use List::Util qw/ sum0 /;
 
 # we have long namespaces and use them multiple times so have
 # normalised them out into the $parent and @subclasses below
@@ -184,7 +184,7 @@ sub to_file (
             record_type     => $type eq 'credit' ? '54' : '58',
             sub_trancode    => 'UVD',
             number_of_items => scalar( @payments ),
-            total_of_items  => sum map { $_->amount } @payments,
+            total_of_items  => sum0 map { $_->amount } @payments,
         );
 
         print $fh $ValueSummary->to_record . $sep;
@@ -206,7 +206,7 @@ sub to_file (
             failed_item_treatment_option => 1,
             text                         => 'Failed items will be returned as individual '
                 . 'items to your trace account.',
-            total_of_items => sum map { $_->amount } @failed,
+            total_of_items => sum0 map { $_->amount } @failed,
         );
 
         print $fh $FailedSummary->to_record . $sep;
@@ -218,10 +218,10 @@ sub to_file (
         print $fh $TrailerRecord->to_record . $sep;
     } else {
 
-        my $credit_total = sum map { $_->amount } grep { $_->is_credit }
+        my $credit_total = sum0 map { $_->amount } grep { $_->is_credit }
             @records;
 
-        my $debit_total = sum map { $_->amount } grep { $_->is_debit }
+        my $debit_total = sum0 map { $_->amount } grep { $_->is_debit }
             @records;
 
         $class         = "Business::NAB::Australian::DirectEntry::Report::TrailerRecord";

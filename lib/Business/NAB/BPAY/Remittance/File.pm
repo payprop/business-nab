@@ -46,7 +46,6 @@ extends 'Business::NAB::FileContainer';
 use Moose::Util::TypeConstraints;
 no warnings qw/ experimental::signatures /;
 
-use List::Util qw/ sum /;
 use Business::NAB::BPAY::Remittance::File;
 
 # we have long namespaces and use them multiple times so have

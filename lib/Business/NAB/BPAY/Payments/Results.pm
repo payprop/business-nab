@@ -45,7 +45,6 @@ use Moose;
 extends 'Business::NAB::BPAY::Payments';
 no warnings qw/ experimental::signatures /;
 
-use List::Util qw/ sum /;
 use Business::NAB::BPAY::Payments::Results::TrailerRecord;
 
 # we have long namespaces and use them multiple times so have

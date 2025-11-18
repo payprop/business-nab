@@ -17,7 +17,7 @@ WriteMakefile(
         'DateTime::Format::DateParse'  => 0.05,
         'Exporter::Easy'               => 0.18,
         'File::Temp'                   => 0,
-        'List::Util'                   => 0,
+        'List::Util'                   => 1.26,
         'Module::Load'                 => 0.34,
         'Moose'                        => 2.2012,
         'Moose::Role'                  => 2.2012,

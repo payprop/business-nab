@@ -57,7 +57,7 @@ extends 'Business::NAB::FileContainer';
 use Moose::Util::TypeConstraints;
 no warnings qw/ experimental::signatures /;
 
-use List::Util qw/ sum /;
+use List::Util qw/ sum0 /;
 
 # we have long namespaces and use them multiple times so have
 # normalised them out into the $parent and @subclasses below
@@ -159,13 +159,11 @@ sub to_file (
 
     my $record_count = scalar( $self->detail_record->@* );
 
-    my $credit_total = sum map { $_->amount }
+    my $credit_total = sum0 map { $_->amount }
         grep { $_->is_credit } $self->detail_record->@*;
-    my $debit_total = sum map { $_->amount }
+    my $debit_total = sum0 map { $_->amount }
         grep { $_->is_debit } $self->detail_record->@*;
 
-    $credit_total //= 0;
-    $debit_total  //= 0;
     my $net_total = abs( $credit_total - $debit_total );
 
     # net total should be zero as it is the net of credit - debit records

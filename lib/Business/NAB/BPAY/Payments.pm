@@ -46,7 +46,7 @@ extends 'Business::NAB::FileContainer';
 use Moose::Util::TypeConstraints;
 no warnings qw/ experimental::signatures /;
 
-use List::Util qw/ sum /;
+use List::Util qw/ sum0 /;
 use Business::NAB::BPAY::Payments::TrailerRecord;
 
 # we have long namespaces and use them multiple times so have
@@ -146,7 +146,7 @@ sub to_file (
     if ( my $TrailerRecord = $self->trailer_record->[ 0 ] ) {
         print $fh $TrailerRecord->to_record . $sep;
     } else {
-        my $total_value = sum map { $_->amount }
+        my $total_value = sum0 map { $_->amount }
             $self->detail_record->@*;
 
         my $TrailerRecord = Business::NAB::BPAY::Payments::TrailerRecord->new(
