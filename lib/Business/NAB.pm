@@ -1,5 +1,7 @@
 package Business::NAB;
 
+# ABSTRACT: Top level namespace for the various NAB file formats
+
 =head1 NAME
 
 Business::NAB
