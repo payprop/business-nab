@@ -4,7 +4,7 @@ Business::NAB
 
 # VERSION
 
-0.03
+0.04
 
 # DESCRIPTION
 
