@@ -1,5 +1,9 @@
 Revision history for Business-NAB
 
+        - Protect against the possibility of writing a partial payments
+          file. The code now only writes if we can be sure that the entire
+          file can be successfully written.
+
 0.05
         - Make sure account numbers shorter than 9 characters
           are left-padded with zeroes to match bank's expectations.

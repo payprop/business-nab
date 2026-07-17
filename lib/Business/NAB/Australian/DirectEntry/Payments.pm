@@ -151,14 +151,6 @@ sub to_file (
     $bsb_number = "999-999",
     $sep = "\r\n",
 ) {
-
-    open( my $fh, '>', $file );
-
-    print $fh $self->descriptive_record->[ 0 ]->to_record . $sep;
-    print $fh $_->to_record . $sep foreach $self->detail_record->@*;
-
-    my $record_count = scalar( $self->detail_record->@* );
-
     my $credit_total = sum0 map { $_->amount }
         grep { $_->is_credit } $self->detail_record->@*;
     my $debit_total = sum0 map { $_->amount }
@@ -180,11 +172,18 @@ sub to_file (
         );
     }
 
+    open( my $fh, '>', $file );
+
+    print $fh $self->descriptive_record->[ 0 ]->to_record . $sep;
+    print $fh $_->to_record . $sep foreach $self->detail_record->@*;
+
     if ( my $TotalRecord = $self->total_record->[ 0 ] ) {
         print $fh $TotalRecord->to_record . $sep;
     } else {
         croak( "BSB number is required if total_record is not set" )
             if !$bsb_number;
+
+        my $record_count = scalar( $self->detail_record->@* );
 
         my $TotalRecord = Business::NAB::Australian::DirectEntry::Payments::TotalRecord->new(
             bsb_number          => $bsb_number,

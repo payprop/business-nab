@@ -92,6 +92,8 @@ subtest 'instantiation + add attributes' => sub {
         qr/you have debits missing a credit/,
     );
 
+    file_contents_eq( $tmp_file, '', 'Wrote nothing to file on failure' );
+
     $Payments->add_detail_record( {
         bsb_number           => '083-047',
         account_number       => '123456789',
