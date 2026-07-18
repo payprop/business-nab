@@ -157,13 +157,14 @@ sub to_file (
         grep { $_->is_debit } $self->detail_record->@*;
 
     my $net_total = abs( $credit_total - $debit_total );
+    my $rounded_total = sprintf '%.8f', $net_total;
 
     # net total should be zero as it is the net of credit - debit records
     # and there should always be a record that nets off the other record
     # type totals (to describe where funds go to/from). however if this is
     # a returns file then this check does not apply
     if (
-        $net_total != 0
+        $rounded_total != 0
         && $self->blessed !~ /::Returns$/
     ) {
         croak(
