@@ -1,9 +1,9 @@
 Revision history for Business-NAB
 
-        - Be a little more lenient when verifying non-returns payments
-          file, to protect against the possibility of slight rounding
-          errors. The net total is now rounded to 8 figures before
-          comparing to zero.
+        - Protect against possible rounding errors. This includes both
+          changes to the way records are serialised and to internal checks
+          for zero-values. There should be no user-facing changes here,
+          only more robust operation against very unusual edge cases.
         - Protect against the possibility of writing a partial payments
           file. The code now only writes if we can be sure that the entire
           file can be successfully written.
