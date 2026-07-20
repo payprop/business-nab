@@ -1,5 +1,6 @@
 Revision history for Business-NAB
 
+0.06
         - Protect against possible rounding errors. This includes both
           changes to the way records are serialised and to internal checks
           for zero-values. There should be no user-facing changes here,
@@ -12,7 +13,8 @@ Revision history for Business-NAB
         - Make sure account numbers shorter than 9 characters
           are left-padded with zeroes to match bank's expectations.
 
-0.04 ??
+0.04
+        - distzillafy the dist
 
 0.03     2025-03-09
         - Handle signed amounts in BAI files
