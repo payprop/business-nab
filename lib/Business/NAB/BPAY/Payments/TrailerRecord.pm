@@ -117,8 +117,8 @@ sub to_record ( $self ) {
     my $record = pack(
         $self->_pack_template(),
         "9",
-        sprintf( "%010s", $self->total_number_of_payments ),
-        sprintf( "%013s", $self->total_value_of_payments ),
+        sprintf( "%010.0f", $self->total_number_of_payments ),
+        sprintf( "%013.0f", $self->total_value_of_payments ),
         "",
     );
 
