@@ -188,9 +188,9 @@ sub to_file (
 
         my $TotalRecord = Business::NAB::Australian::DirectEntry::Payments::TotalRecord->new(
             bsb_number          => $bsb_number,
-            net_total_amount    => $net_total,
-            credit_total_amount => $credit_total,
-            debit_total_amount  => $debit_total,
+            net_total_amount    => sprintf( "%.0f",$net_total ),
+            credit_total_amount => sprintf( "%.0f",$credit_total ),
+            debit_total_amount  => sprintf( "%.0f",$debit_total ),
             record_count        => $record_count,
         );
 
