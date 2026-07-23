@@ -8,7 +8,7 @@ Business::NAB
 
 =head1 VERSION
 
-0.06
+0.07
 
 =head1 DESCRIPTION
 
