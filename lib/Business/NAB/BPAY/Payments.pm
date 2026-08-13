@@ -150,7 +150,7 @@ sub to_file (
             $self->detail_record->@*;
 
         my $TrailerRecord = Business::NAB::BPAY::Payments::TrailerRecord->new(
-            total_value_of_payments  => $total_value,
+            total_value_of_payments  => sprintf( "%.0f",$total_value ),
             total_number_of_payments => scalar( $self->detail_record->@* ),
         );
 
